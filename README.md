@@ -4,7 +4,7 @@ Optimize hemodynamic response function parameters.
 A free & open source package for finding best-fitting hemodynamic response function (HRF) parameters for fMRI data.
 HRF parameters are optimized. Optimization takes place within the framework of population receptive field (pRF) parameters.
 
-The fitting process requires, for every voxel of fMRI data, optimized pRF parameters. These ca be obtained using [pyprf_feauture](https://github.com/MSchnei/pyprf_feature).
+The fitting process requires, for every voxel of fMRI data, optimized pRF parameters. These ca be obtained using [pyprf_feature](https://github.com/MSchnei/pyprf_feature).
 
 ## Installation
 
