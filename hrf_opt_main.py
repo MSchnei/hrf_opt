@@ -18,62 +18,96 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import time
+import numpy as np
+import multiprocessing as mp
+
+#from hrf_opt.load_config import load_config
+#from hrf_opt.hrf_opt_utils import cls_set_config
+from load_config import load_config
+from hrf_opt_utils import cls_set_config
+
+###### DEBUGGING ###############
+#strCsvCnfg = "/home/marian/Documents/Git/hrf_opt/config_test.csv"
+#lgcTest = False
+################################
+
+
+def pyprf(strCsvCnfg, lgcTest=False):
+    """
+    Main function for hrf_opt.
+
+    Parameters
+    ----------
+    strCsvCnfg : str
+        Absolute file path of config file.
+    lgcTest : Boolean
+        Whether this is a test (pytest). If yes, absolute path of pyprf libary
+        will be prepended to config file paths.
+
+    """
+
+    # %% Preparations
+
+    # Check time
+    print('---pRF analysis')
+    varTme01 = time.time()
+
+    # Load config parameters from csv file into dictionary:
+    dicCnfg = load_config(strCsvCnfg, lgcTest=lgcTest)
+
+    # Load config parameters from dictionary into namespace:
+    cfg = cls_set_config(dicCnfg)
+
+    # If suppressive surround flag is on, make sure to retrieve results from
+    # that fitting
+    if cfg.lgcSupsur is not None:
+        cfg.strPathOut = cfg.strPathOut + '_supsur'
+
+    # Convert preprocessing parameters (for temporal smoothing)
+    # from SI units (i.e. [s]) into units of data array (volumes):
+    cfg.varSdSmthTmp = np.divide(cfg.varSdSmthTmp, cfg.varTr)
+
+    # %% Load previous pRF fitting results
+
+    # Derive paths to the x, y, sigma winner parameters from pyprf_feature
+    lstWnrPrm = [cfg.strPathOut + '_x_pos.nii.gz',
+                 cfg.strPathOut + '_y_pos.nii.gz',
+                 cfg.strPathOut + '_SD.nii.gz',
+                 cfg.strPathOut + '_R2.nii.gz']
+
+    # Check if fitting has been performed, i.e. whether parameter files exist
+    # Throw error message if they do not exist.
+    errorMsg = 'Files that should have resulted from fitting do not exist. \
+                \nPlease perform pRF fitting first, calling  e.g.: \
+                \npyprf_feature -config /path/to/my_config_file.csv'
+    assert os.path.isfile(lstWnrPrm[0]), errorMsg
+    assert os.path.isfile(lstWnrPrm[1]), errorMsg
+    assert os.path.isfile(lstWnrPrm[2]), errorMsg
+    assert os.path.isfile(lstWnrPrm[3]), errorMsg
+
+    # Load the x, y, sigma winner parameters from pyprf_feature
+    aryIntGssPrm = load_res_prm(lstWnrPrm,
+                                lstFlsMsk=[cfg.strPathNiiMask])[0][0]
+
+    # Get corresponding model parameters
+    aryMdlParams = np.load(cfg.strPathMdlRsp + '_params.npy')
+    # Get corresponding model responses
+    aryMdlRsp = np.load(cfg.strPathMdlRsp + '_mdlRsp.npy')
+
+    
+    
+
+    # %% Load empirical as well as fitted, unconvolved time courses
+
+    # Load empirical, voxel time courses:
+    cfg.strPathFuncIn
+
+    # Load unconvolved model time courses:
+    cfg.strPathMdlIn
+
+    # Load R2 values of pRF fitting
+    cfg.strPathR2, cfg.varThrR2
 
 
 
-varTimeStepSize = 0.2  # 0.2
-varDispStepSize = 0.2  # 0.2
-varScaleStepSize = 0.1
-
-# define vector for  time to peak, default: 6
-varA1min = 2  # 2
-varA1max = 11  # 10
-vecA1 = np.arange(varA1min, varA1max+varTimeStepSize, varTimeStepSize)
-varA1num = len(vecA1)
-
-# define vector fortime to undershoot, default: 16
-varA2min = 11  # 6
-varA2max = 19  # 18
-vecA2 = np.arange(varA2min, varA2max+varTimeStepSize, varTimeStepSize)
-varA2num = len(vecA2)
-
-# define vector for peak dispersion, default: 1
-varB1min = 0.1  # 0.1
-varB1max = 2.5  # 2.5
-vecB1 = np.arange(varB1min, varB1max+varDispStepSize, varDispStepSize)
-varB1num = len(vecB1)
-
-# define vector for undershoot dispersion, default: 1
-varB2min = 0.1  # 0.1
-varB2max = 2.5  # 2.5
-vecB2 = np.arange(varB2min, varB2max+varDispStepSize, varDispStepSize)
-varB2num = len(vecB2)
-
-# define vector for weighting of undershoot relative to peak,
-# e.g. 6 means 1:6 weighting
-varCmin = 0.000001  # 1
-vecCmax = 2  # 10
-# divide by 10 here to invert effect (go from 1/10, 2/10, ..., to 10/10)
-vecC = np.arange(varCmin, vecCmax+varScaleStepSize, varScaleStepSize)
-varCnum = len(vecC)
-
-# find combinations of all parameters
-# exclude combinations where a2 < a1
-iterables = [vecA1, vecA2]
-vecA12 = list(itertools.product(*iterables))
-vecA12 = np.asarray(vecA12)
-# pass only the combinations where a1 < a2
-lgcA12combi = np.less(vecA12[:, 0], vecA12[:, 1])
-vecA12 = vecA12[lgcA12combi]
-# define number of combinations for a1 and a2 positions
-varA12num = len(vecA12)
-
-# %% create hrf model parameters
-# get number of all possible parameter combinations
-varAllCombis = varA12num * varB1num * varB1num * varCnum
-
-iterables = [vecA12, vecB1, vecB2, vecC]
-aryHrfParams = list(itertools.product(*iterables))
-for ind, item in enumerate(aryHrfParams):
-    aryHrfParams[ind] = list(np.hstack(item))
-aryHrfParams = np.array(aryHrfParams)
