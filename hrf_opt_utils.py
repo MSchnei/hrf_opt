@@ -5,10 +5,10 @@ Created on Tue Oct 23 09:05:57 2018
 
 @author: Marian
 """
-from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
-import numpy as np
-import matplotlib.pyplot as plt
+
 import itertools
+import numpy as np
+from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 
 def create_hrf_params(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
@@ -38,7 +38,7 @@ def create_hrf_params(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
     varUndDspMax : float, positive
         Maximum dispersion for the undershoot of the hrf function.
     varDspStp : float, positive
-        Step size for peak and undershoot dispersion of the hrf function.         
+        Step size for peak and undershoot dispersion of the hrf function.
     varPkUndRatMin : float, positive
         Minimum peak to undershoot ratio.
     varPkUndRatMax : float, positive
@@ -71,7 +71,7 @@ def create_hrf_params(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
                             varPkUndRatStp)
 
     # Find combinations of all parameters
-    # Exclude combinations where undershoot delay less than 
+    # Exclude combinations where undershoot delay less than peak delay
     iterables = [vecPkDel, vecUndDel]
     vecDelCmb = list(itertools.product(*iterables))
     vecDelCmb = np.asarray(vecDelCmb)
@@ -84,7 +84,7 @@ def create_hrf_params(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
     for ind, item in enumerate(aryPrm):
         aryPrm[ind] = list(np.hstack(item))
     aryPrm = np.array(aryPrm)
-    
+
     return aryPrm.astype(np.float32)
 
 
@@ -96,7 +96,7 @@ def wrap_hrf_params_dct(aryPrm, indPrm):
     aryPrm : numpy array
         Array with all combinations of hrf parameters.
     indPrm : integer, positive
-        Index for hrf parameter array.
+        Index for speicifc hrf parameter instance.
 
     Returns
     -------
@@ -104,10 +104,10 @@ def wrap_hrf_params_dct(aryPrm, indPrm):
         Dictionary with hrf parameters.
 
     """
-    
+
     # Terieve vector with hrf parameters
     vecPrm = aryPrm[indPrm]
-    
+
     # Create dictionary for hrf function
     dctPrms = {}
     dctPrms['peak_delay'] = float(vecPrm[0])
@@ -115,18 +115,38 @@ def wrap_hrf_params_dct(aryPrm, indPrm):
     dctPrms['peak_disp'] = float(vecPrm[2])
     dctPrms['under_disp'] = float(vecPrm[3])
     dctPrms['p_u_ratio'] = float(vecPrm[4])
-    
+
     return dctPrms
 
 
+class cls_set_config(object):
+    """
+    Set config parameters from dictionary into local namespace.
 
-dictTest = wrap_hrf_params_dct(aryPrm, 0)
+    Parameters
+    ----------
+    dicCnfg : dict
+        Dictionary containing parameter names (as keys) and parameter values
+        (as values). For example, `dicCnfg['varTr']` contains a float, such as
+        `2.94`.
+    """
 
-t = np.arange(30)
+    def __init__(self, dicCnfg):
+        """Set config parameters from dictionary into local namespace."""
+        self.__dict__.update(dicCnfg)
 
-testBase = spm_hrf_compat(t, **dctPrms)
 
-dctPrms['p_u_ratio'] = 15
-testChange = spm_hrf_compat(t, **dctPrms)
-plt.plot(t, testBase)
-plt.plot(t, testChange)
+
+## Create hrf parameter combinations
+#aryPrm = create_hrf_params(varPkDelMin, varPkDelMax, varUndDelMin,
+#                           varUndDelMax, varDelStp, varPkDspMin, varPkDspMax,
+#                           varUndDspMin, varUndDspMax, varDspStp,
+#                           varPkUndRatMin, varPkUndRatMax, varPkUndRatStp)
+#
+## Turn one parameter combination into dictionary
+#dctPrms = wrap_hrf_params_dct(aryPrm, 0)
+#
+## Obtain hrf function with these specific hrf parameters
+#t = np.arange(30)
+#testBase = spm_hrf_compat(t, **dctPrms)
+
