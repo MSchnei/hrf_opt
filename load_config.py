@@ -1,5 +1,21 @@
 # -*- coding: utf-8 -*-
-"""Load py_pRF_mapping config file."""
+"""Load hrf_opt config file."""
+
+# Part of hrf_opt library
+# Copyright (C) 2018  Marian Schneider
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import csv
@@ -176,11 +192,17 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         print('---Path to nifti file voxel time courses were saved to: ')
         print('   ' + str(dicCnfg['strPathFuncIn']))
 
-    # Path to nifti file unconvolved model time courses were saved to:
-    dicCnfg['strPathMdlIn'] = ast.literal_eval(dicCnfg['strPathMdlIn'])
+    # Path to base of npy files with model parameters and responses:
+    dicCnfg['strPathMdlRsp'] = ast.literal_eval(dicCnfg['strPathMdlRsp'])
     if lgcPrint:
-        print('---Path to file unconvolved model time courses were saved to: ')
-        print('   ' + str(dicCnfg['strPathMdlIn']))
+        print('---Path to base of files with model parameters and responses: ')
+        print('   ' + str(dicCnfg['strPathMdlRsp']))
+
+    # Path to npy file with temporal info about aperture conditions
+    dicCnfg['strTmpExpInf'] = ast.literal_eval(dicCnfg['strTmpExpInf'])
+    if lgcPrint:
+        print('---Path to npy file with temporal condition info: ')
+        print('   ' + str(dicCnfg['strTmpExpInf']))
 
     # Were the model time courses created with suppressive surround?
     dicCnfg['lgcSupsur'] = (dicCnfg['lgcSupsur'] == 'True')
@@ -188,11 +210,11 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         print('---Model time courses were created with suppressive surround: '
               + str(dicCnfg['lgcSupsur']))
 
-    # Path to nifti file with R2 values of pRF fitting:
-    dicCnfg['strPathR2'] = ast.literal_eval(dicCnfg['strPathR2'])
+    # Path to base of nifti files with previous pRF fitting results:
+    dicCnfg['strPathFitRes'] = ast.literal_eval(dicCnfg['strPathFitRes'])
     if lgcPrint:
-        print('---Path to nifti file with R2 values of pRF fitting: ')
-        print('   ' + str(dicCnfg['strPathR2']))
+        print('---Path to base of files with previous pRF fitting results: ')
+        print('   ' + str(dicCnfg['strPathFitRes']))
 
     # # R2 threshold that will be applied for voxel inclusion:
     dicCnfg['varThrR2'] = int(dicCnfg['varThrR2'])
@@ -225,7 +247,8 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         # Prepend absolute path of this file to config file paths:
         dicCnfg['strPathFuncIn'] = (strDir + dicCnfg['strPathFuncIn'])
         dicCnfg['strPathOut'] = (strDir + dicCnfg['strPathOut'])
-        dicCnfg['strPathMdlIn'] = (strDir + dicCnfg['strPathMdlIn'])
+        dicCnfg['strPathMdlRsp'] = (strDir + dicCnfg['strPathMdlRsp'])
+        dicCnfg['strTmpExpInf'] = (strDir + dicCnfg['strTmpExpInf'])
         dicCnfg['strPathR2'] = (strDir + dicCnfg['strPathR2'])
 
     return dicCnfg
