@@ -16,22 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# Volume TR of input data [s]:
-varTr = 2.0
-
-# Number of fMRI volumes (across all runs):
-varNumVol = 1232
-
-# Factor by which time courses and HRF will be upsampled for the convolutions
-# Higher number might yield more accurate reults but also takes up more RAM.
-varTmpOvsmpl = 20.
-
-# Extent of temporal smoothing for fMRI data and pRF time course models
-# [standard deviation of the Gaussian kernel, in seconds]:
-# same temporal smoothing will be applied to pRF model time courses
-varSdSmthTmp = 0.0
-
+# Set the hrf function specific parameters
 
 # Minimum delay for the peak of the hrf function:
 varPkDelMin = 2.0
@@ -69,30 +54,48 @@ varPkUndRatMin = 1.0
 # Maximum peak to undershoot ratio:
 varPkUndRatMax = 10.0
 
-# Step size for teh peak to undershoot ratio
+# Step size for the peak to undershoot ratio
 varPkUndRatStp = 1.0
+
+# Factor by which time courses and HRF will be upsampled for the convolutions
+# Higher number might yield more accurate reults but also takes up more RAM.
+varTmpOvsmpl = 20.
+
+# Extent of temporal smoothing for fMRI data and pRF time course models
+# [standard deviation of the Gaussian kernel, in seconds]:
+# same temporal smoothing will be applied to pRF model time courses
+varSdSmthTmp = 0.0
+
+# Set parameters specific to the experiment
+
+# Volume TR of input data [s]:
+varTr = 2.0
+
+# Number of fMRI volumes (across all runs):
+varNumVol = 1232
+
+# Path to nifti file in which voxel time courses were saved:
+strPathFuncIn = '~/pRF_results/emp_tc.nii.gz'
+
+# Path to base of npy file with model parameters and responses:
+strPathMdlRsp = '~/pRF_results/prf_model_tc'
+
+# Path to npy files with temporal info about aperture conditions:
+strSptExpInf = '~/expInfo/sptInfo/arySptExpInf.npy'
+
+# Were the model time courses created with suppressive surround?
+lgcSupsur = False
+
+# Path to base of nifti files with previous pRF fitting results:
+strPathFitRes = '~/pRF_results/pRF_results'
+
+# Set fitting details
+
+# R2 threshold that will be applied for voxel inclusion:
+varThrR2 = 0.2 
 
 # Number of processes to run in parallel:
 varPar = 10
-
-# Path of functional data (needs to have same number of volumes as there are
-# PNGs):
-lstPathNiiFunc = ['~/fnc01.nii', '~/fnc02.nii', '~/fnc03.nii', '~/fnc04.nii']
-
-# Path of mask (to restrict pRF model finding):
-strPathNiiMask = '~/mask.nii'
-
-# Output basename:
-strPathOut = '~/pRF_results/pRF_results'
-
-# Which version to use for pRF finding. 'numpy' or 'cython' for pRF finding on
-# CPU, 'gpu' for using GPU.
-strVersion = 'cython'
-
-# Which hrf functions should be used?
-# 1: only canonical, 2: can and temp deriv, 3: can, temp and spat deriv
-# Note: Currently only option 1 (canonical hrf) is supported
-switchHrfSet = 1
 
 # Should model fitting be based on k-fold cross-validation?
 # if desired, it is recommended to set this equal to the number of runs
@@ -100,9 +103,5 @@ switchHrfSet = 1
 # currently only supported for CPU, set to 1 if using GPU
 varNumXval = 4
 
-# Create hrf time course models?
-lgcCrteMdl = True
-
-# Path to npy file with pRF time course models (to save or load). Without file
-# extension.
-strPathMdl = '~/pRF_results/pRF_model_tc'
+# Output basename:
+strPathOut = '~/pRF_results/hrf_opt_results'
