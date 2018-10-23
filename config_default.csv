@@ -17,25 +17,60 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-# Maximum and minimum pRF model size (standard deviation of 2D Gaussian)
-# [degrees of visual angle]:
-varPrfStdMin = 1.0
-varPrfStdMax = 22.0
-
 # Volume TR of input data [s]:
 varTr = 2.0
 
-# Voxel resolution of the fMRI data [mm]:
-varVoxRes = 1.2
-
 # Number of fMRI volumes (across all runs):
 varNumVol = 1232
+
+# Factor by which time courses and HRF will be upsampled for the convolutions
+# Higher number might yield more accurate reults but also takes up more RAM.
+varTmpOvsmpl = 20.
 
 # Extent of temporal smoothing for fMRI data and pRF time course models
 # [standard deviation of the Gaussian kernel, in seconds]:
 # same temporal smoothing will be applied to pRF model time courses
 varSdSmthTmp = 0.0
+
+
+# Minimum delay for the peak of the hrf function:
+varPkDelMin = 2.0
+
+# Maximum delay for the peak of the hrf function:
+varPkDelMax = 10.0
+
+# Minimum delay for the undershoot of the hrf function:
+varUndDelMin = 8.0
+
+# Maximum delay for the undershoot of the hrf function:
+varUndDelMax = 20.0
+
+# Step size for peak and undershoot delay of the hrf function:
+varDelStp = 1.0
+
+# Minimum dispersion for the peak of the hrf function:
+varPkDspMin = 0.1
+
+# Maximum dispersion for the peak of the hrf function:
+varPkDspMax = 3.5
+
+# Minimum dispersion for the undershoot of the hrf function:
+varUndDspMin = 0.1
+
+# Maximum dispersion for the undershoot of the hrf function:
+varUndDspMax = 3.5
+
+# Step size for peak and undershoot dispersion of the hrf function:
+varDspStp = 0.2
+
+# Minimum peak to undershoot ratio:
+varPkUndRatMin = 1.0
+
+# Maximum peak to undershoot ratio:
+varPkUndRatMax = 10.0
+
+# Step size for teh peak to undershoot ratio
+varPkUndRatStp = 1.0
 
 # Number of processes to run in parallel:
 varPar = 10
@@ -67,10 +102,6 @@ varNumXval = 4
 
 # Create hrf time course models?
 lgcCrteMdl = True
-
-# Factor by which time courses and HRF will be upsampled for the convolutions
-# Higher number might yield more accurate reults but also takes up more RAM.
-varTmpOvsmpl = 20.
 
 # Path to npy file with pRF time course models (to save or load). Without file
 # extension.
