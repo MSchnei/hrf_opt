@@ -186,11 +186,18 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         print('---Total number of fMRI volumes and png files: '
               + str(dicCnfg['varNumVol']))
 
-    # Path to nifti file voxel time courses were saved to:
-    dicCnfg['strPathFuncIn'] = ast.literal_eval(dicCnfg['strPathFuncIn'])
+    # Path(s) of functional data:
+    dicCnfg['lstPathNiiFunc'] = ast.literal_eval(dicCnfg['lstPathNiiFunc'])
     if lgcPrint:
-        print('---Path to nifti file voxel time courses were saved to: ')
-        print('   ' + str(dicCnfg['strPathFuncIn']))
+        print('---Path(s) of functional data:')
+        for strTmp in dicCnfg['lstPathNiiFunc']:
+            print('   ' + str(strTmp))
+
+    # Path of mask (to restrict pRF model finding):
+    dicCnfg['strPathNiiMask'] = ast.literal_eval(dicCnfg['strPathNiiMask'])
+    if lgcPrint:
+        print('---Path of mask (to restrict pRF model finding):')
+        print('   ' + str(dicCnfg['strPathNiiMask']))
 
     # Path to base of npy files with model parameters and responses:
     dicCnfg['strPathMdlRsp'] = ast.literal_eval(dicCnfg['strPathMdlRsp'])
@@ -217,7 +224,7 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         print('   ' + str(dicCnfg['strPathFitRes']))
 
     # # R2 threshold that will be applied for voxel inclusion:
-    dicCnfg['varThrR2'] = int(dicCnfg['varThrR2'])
+    dicCnfg['varThrR2'] = float(dicCnfg['varThrR2'])
     if lgcPrint:
         print('---R2 threshold that will applied be for voxel inclusion: '
               + str(dicCnfg['varThrR2']))
@@ -230,7 +237,7 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
 
     # should model fitting be based on k-fold cross-validation?
     # if not, set to 1
-    dicCnfg['varNumXval'] = ast.literal_eval(dicCnfg['varNumXval'])
+    dicCnfg['varNumXval'] = int(dicCnfg['varNumXval'])
     if lgcPrint:
         print('---Model fitting will have this number of folds for xval: '
               + str(dicCnfg['varNumXval']))
@@ -250,5 +257,13 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         dicCnfg['strPathMdlRsp'] = (strDir + dicCnfg['strPathMdlRsp'])
         dicCnfg['strTmpExpInf'] = (strDir + dicCnfg['strTmpExpInf'])
         dicCnfg['strPathR2'] = (strDir + dicCnfg['strPathR2'])
+
+        # Loop through functional runs:
+        varNumRun = len(dicCnfg['lstPathNiiFunc'])
+        for idxRun in range(varNumRun):
+            dicCnfg['lstPathNiiFunc'][idxRun] = (
+                strDir
+                + dicCnfg['lstPathNiiFunc'][idxRun]
+                )
 
     return dicCnfg

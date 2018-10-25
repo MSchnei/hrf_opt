@@ -49,10 +49,10 @@ varUndDspMax = 3.5
 varDspStp = 0.2
 
 # Minimum peak to undershoot ratio:
-varPkUndRatMin = 1.0
+varPkUndRatMin = 1.5
 
 # Maximum peak to undershoot ratio:
-varPkUndRatMax = 10.0
+varPkUndRatMax = 10.5
 
 # Step size for the peak to undershoot ratio
 varPkUndRatStp = 1.0
@@ -74,14 +74,17 @@ varTr = 2.0
 # Number of fMRI volumes (across all runs):
 varNumVol = 1232
 
-# Path to nifti file in which voxel time courses were saved:
-strPathFuncIn = '~/pRF_results/emp_tc.nii.gz'
+# Path of functional data (needs to have same number of volumes as varNumVol):
+lstPathNiiFunc = ['~/fnc01.nii', '~/fnc02.nii', '~/fnc03.nii', '~/fnc04.nii']
+
+# Path of mask (to restrict pRF model finding):
+strPathNiiMask = '~/msk.nii'
 
 # Path to base of npy file with model parameters and responses:
 strPathMdlRsp = '~/pRF_results/prf_model_tc'
 
 # Path to npy files with temporal info about aperture conditions:
-strSptExpInf = '~/expInfo/sptInfo/arySptExpInf.npy'
+strTmpExpInf = '~/expInfo/sptInfo/arySptExpInf.npy'
 
 # Were the model time courses created with suppressive surround?
 lgcSupsur = False
@@ -92,7 +95,7 @@ strPathFitRes = '~/pRF_results/pRF_results'
 # Set fitting details
 
 # R2 threshold that will be applied for voxel inclusion:
-varThrR2 = 0.2 
+varThrR2 = 0.2
 
 # Number of processes to run in parallel:
 varPar = 10

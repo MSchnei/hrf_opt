@@ -8,13 +8,15 @@ Created on Tue Oct 23 09:05:57 2018
 
 import itertools
 import numpy as np
-from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
+from scipy.interpolate import interp1d
+from scipy.signal import fftconvolve
 
 
-def create_hrf_params(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
-                      varDelStp, varPkDspMin, varPkDspMax, varUndDspMin,
-                      varUndDspMax, varDspStp, varPkUndRatMin, varPkUndRatMax,
-                      varPkUndRatStp):
+def crt_hrf_prm(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
+                varDelStp, varPkDspMin, varPkDspMax, varUndDspMin,
+                varUndDspMax, varDspStp, varPkUndRatMin, varPkUndRatMax,
+                varPkUndRatStp):
+
     """Create combinations of hrf parameters.
 
     Parameters
@@ -88,15 +90,15 @@ def create_hrf_params(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
     return aryPrm.astype(np.float32)
 
 
-def wrap_hrf_params_dct(aryPrm, indPrm):
+def wrp_hrf_prm_dct(vecPrm, lgcNrm=True):
     """Wrap hrf parameters into dictionary.
 
     Parameters
     ----------
-    aryPrm : numpy array
-        Array with all combinations of hrf parameters.
-    indPrm : integer, positive
-        Index for speicifc hrf parameter instance.
+    vecPrm : 1D numpy array
+        Array with a specific combination of hrf parameters.
+    lgcNrm : boolean
+        Should the hrf function be passed the argument to be normalized?
 
     Returns
     -------
@@ -104,9 +106,6 @@ def wrap_hrf_params_dct(aryPrm, indPrm):
         Dictionary with hrf parameters.
 
     """
-
-    # Terieve vector with hrf parameters
-    vecPrm = aryPrm[indPrm]
 
     # Create dictionary for hrf function
     dctPrms = {}
@@ -116,7 +115,138 @@ def wrap_hrf_params_dct(aryPrm, indPrm):
     dctPrms['under_disp'] = float(vecPrm[3])
     dctPrms['p_u_ratio'] = float(vecPrm[4])
 
+    if lgcNrm:
+        dctPrms['normalize'] = True
+
     return dctPrms
+
+
+def cvrt_hrf_prm_fn(aryPrm, fnHrf, varTr, varTmpOvsmpl, varHrfLen=32.):
+    """Convert hrf parameters to hrf base function.
+
+    Parameters
+    ----------
+    aryPrm : numpy array
+        Array with all combinations of hrf parameters.
+    fnHrf : function
+        Specific hrf function that should be used
+    varTr : float, positive
+        Time to repeat (TR) of the (fMRI) experiment.
+    varTmpOvsmpl : float, positive
+        Factor by which the time courses should be temporally upsampled.
+    varHrfLen : float, positive, default=32
+        Length of the HRF time course in seconds.
+
+    Returns
+    -------
+    aryHrfBse : 2D numpy array
+        Array with hrf base functions.
+
+    """
+
+    # Derive array for time
+    aryTme = np.linspace(0, varHrfLen, (varHrfLen // varTr) * varTmpOvsmpl)
+    # Initialize array that will collect hrf base functions
+    aryHrfBse = np.zeros((aryPrm.shape[0], aryTme.shape[0]), dtype=np.float32)
+
+    # Loop over hrf parameter combinations
+    for indPrm, vecPrm in enumerate(aryPrm):
+        # obtain dictionary for this hrf parameter combination
+        dctPrms = wrp_hrf_prm_dct(vecPrm)
+        # Create hrf base function based in the parameters
+        vecTmpBse = fnHrf(aryTme, **dctPrms)
+        # Normalise HRF so that the sum of values is 1 (see FSL)
+        # otherwise, after convolution values for predictors are very high
+        vecTmpBse = np.divide(vecTmpBse, np.sum(vecTmpBse))
+        # Assign normalized base function to array
+        aryHrfBse[indPrm, :] = vecTmpBse
+
+    return aryHrfBse
+
+
+def cnvl_nrl_hrf(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr, varNumVol):
+    """Convolution, un-vectorized, requires less RAM.
+
+    Parameters
+    ----------
+    vecNrlRsp : 1D numpy array
+        Neural response function taht won for this voxel in first fit.
+    aryHrfBse : 2D numpy array
+        All basic hrf functions.
+    vecFrms : 1D numpy array
+        Frame times, i.e. start point of every volume in seconds.
+    vecFrmTms : 2D numpy array
+        Supersampled frames times, i.e. start point of every volume in
+        upsampled res.
+    varTr : float, positive
+        Time to repeat (TR) of the (fMRI) experiment.
+    varNumVol : float, positive
+        Number of volumes of the (fMRI) data.
+
+    Returns
+    -------
+    aryConv : 2D numpy array
+        Neural response function convolved with all possible hrf functions.
+
+    """
+
+    # Prepare an empty array for convolution ouput
+    aryConv = np.zeros((aryHrfBse.shape[0], varNumVol),
+                       dtype=np.float32)
+
+    # Convolving the best-fitting neural response with all hrf base fn
+    for indBse, vecHrfBse in enumerate(aryHrfBse):
+        # Make sure hrf basis function is float64 to avoid overflow
+        vecHrfBse = vecHrfBse.astype(np.float64)
+        # Perform the convolution (previously: np.convolve)
+        col = fftconvolve(vecHrfBse, vecNrlRsp,
+                          mode='full')[:vecNrlRsp.size]
+        # Get function for downsampling
+        f = interp1d(vecFrmTms, col)
+        # Downsample to original resoltuion to match res of data
+        # take the value from the centre of each volume's period (see FSL)
+        aryConv[indBse, :] = f(vecFrms + varTr/2.)
+
+    return aryConv
+
+
+def cnvl_nrl_hrf_vec(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr,
+                     varNumVol):
+    """Convolution, vectorized but requires more RAM.
+
+    Parameters
+    ----------
+    vecNrlRsp : 1D numpy array
+        Neural response function taht won for this voxel in first fit.
+    aryHrfBse : 2D numpy array
+        All basic hrf functions.
+    vecFrms : 1D numpy array
+        Frame times, i.e. start point of every volume in seconds.
+    vecFrmTms : 2D numpy array
+        Supersampled frames times, i.e. start point of every volume in
+        upsampled res.
+    varTr : float, positive
+        Time to repeat (TR) of the (fMRI) experiment.
+    varNumVol : float, positive
+        Number of volumes of the (fMRI) data.
+
+    Returns
+    -------
+    aryConv : 2D numpy array
+        Neural response function convolved with all possible hrf functions.
+
+    """
+
+    # Perform the convolution (previously: np.convolve)
+    col = fftconvolve(aryHrfBse, vecNrlRsp[None, :],
+                      mode='full')[:, :vecNrlRsp.size]
+    # Get function for downsampling
+    f = interp1d(vecFrmTms, col)
+    # Downsample to original resoltuion to match res of data
+    # take the value from the centre of each volume's period (see FSL)
+    aryConv = f(vecFrms + varTr/2.)
+
+    return aryConv.astype(np.float32)
 
 
 class cls_set_config(object):
