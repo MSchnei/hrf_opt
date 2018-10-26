@@ -23,7 +23,7 @@ from pyprf_feature.analysis.model_creation_utils import fnd_unq_rws
 #from hrf_opt.find_hrf_utils_cy_one import (cy_lst_sq_one, cy_lst_sq_xval_one)
 #from hrf_opt.find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
 from find_hrf_utils_cy_one import (cy_lst_sq_one, cy_lst_sq_xval_one)
-from find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
+#from find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
 #from hrf_opt.hrf_opt_utils import (cnvl_nrl_hrf, cnvl_nrl_hrf_vec)
 from hrf_opt_utils import (cnvl_nrl_hrf, cnvl_nrl_hrf_vec, cvrt_hrf_prm_fn)
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
@@ -196,11 +196,8 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                 if varCntSts01 < varStsStpSze:
                     varCntSts01 = varCntSts01 + int(1)
 
-        # For this particular voxel get the empirical time course
-        vecFunc = aryFunc[:, idxVxl]
         # For this particular voxel get best-fitting neural response
         vecNrlRsp = aryNrlRsp[idxVxl, :].astype(np.float32)
-
         # Get frame times, i.e. start point of every volume in seconds
         vecFrms = np.arange(0, varTr * varNumVol, varTr)
         # Get supersampled frames times, i.e. start point of every volume in
@@ -232,10 +229,10 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                 # beta parameter estimates of the current model:
                 if varNumFtr == 1:
                     # For time course with one predictors
-                    aryResXval, idxMdl = cy_lst_sq_xval_one(aryMdlRsp,
-                                                            vecFunc,
-                                                            aryIdxTrn,
-                                                            aryIdxTst)
+                    aryResXval = cy_lst_sq_xval_one(aryMdlRsp.T,
+                                                    aryFunc[:, idxVxl],
+                                                    aryIdxTrn,
+                                                    aryIdxTst)
 
                 elif varNumFtr == 2:
                     # For time course with two predictors
@@ -261,8 +258,8 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                 # beta parameter estimates of the current model:
                 if varNumFtr == 1:
                     # For time course with one predictor
-                    aryTmpBts, vecTmpRes, idxMdl = cy_lst_sq_one(aryMdlRsp,
-                                                                 aryFunc)
+                    aryTmpBts, vecTmpRes = cy_lst_sq_one(aryMdlRsp.T,
+                                                         aryFunc[:, idxVxl])
 
                 elif varNumFtr == 2:
                     # For time course with two predictors
@@ -274,21 +271,23 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                         print('Cython currently not implemented for ' +
                               'more than two two predictors.')
 
+            # Get index for the winner model
+            idxWnrMdl = np.argmin(vecTmpRes)
+
             # Replace best hrf parameters:
-            vecBstPrm[idxVxl, :] = aryPrm[idxMdl, :]
+            vecBstPrm[idxVxl, :] = aryPrm[idxWnrMdl, :]
 
             # Replace best mean residual values:
-            vecBstRes[idxVxl] = vecTmpRes
+            vecBstRes[idxVxl] = vecTmpRes[idxWnrMdl]
 
             if not lgcXval:
                 # Replace best beta values:
-                aryBstBts[idxVxl, :] = \
-                    aryTmpBts.T
+                aryBstBts[idxVxl, :] = aryTmpBts[:, idxWnrMdl].T
 
             # In case we cross-validate we also save and replace the best
             # residual values for every fold (not only mean across folds):
             if lgcXval:
-                aryBstResFlds[idxVxl, :] = aryResXval
+                aryBstResFlds[idxVxl, :] = aryResXval[idxWnrMdl, :]
 
         # Status indicator (only used in the first of the parallel
         # processes):
@@ -314,7 +313,6 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
 
         # Loop over all best-fitting model parameter combinations found
         for indPrm, vecPrm in enumerate(vecBstPrm):
-
             # Get voxel time course
             aryVxlTc = aryFunc[:, indPrm]
             # Get nerual model time courses
@@ -334,16 +332,13 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
             # loop over cross-validation folds
             for idxXval in range(varNumXval):
                 # Get functional data for tst:
-                aryFuncTst = aryVxlTc[
-                    aryIdxTst[:, idxXval], :]
+                aryFuncTst = aryVxlTc[aryIdxTst[:, idxXval]]
                 # Deviation from the mean for each datapoint:
                 aryFuncDev = np.subtract(aryFuncTst,
                                          np.mean(aryFuncTst,
-                                                 axis=0)[None, :])
+                                                 axis=0))
                 # Sum of squares:
-                vecSsTot = np.sum(np.power(aryFuncDev,
-                                           2.0),
-                                  axis=0)
+                vecSsTot = np.sum(np.power(aryFuncDev, 2.0), axis=0)
                 arySsTotXval[indPrm, idxXval] = vecSsTot
 
         # Calculate coefficient of determination by comparing:

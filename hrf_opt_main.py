@@ -29,7 +29,8 @@ import multiprocessing as mp
 from load_config import load_config
 from hrf_opt_utils import cls_set_config, crt_hrf_prm, cvrt_hrf_prm_fn
 #from find_opt_hrf import find_opt_hrf
-from pyprf_feature.analysis.utils_general import load_res_prm
+from pyprf_feature.analysis.utils_general import (load_res_prm, joinRes,
+                                                  export_nii)
 from pyprf_feature.analysis.prepare import prep_func
 from pyprf_feature.analysis.model_creation_utils import (crt_mdl_prms,
                                                          fnd_unq_rws,
@@ -219,20 +220,69 @@ def hrf_opt(strCsvCnfg, lgcTest=False):
 
     # %% Prepare pRF finding results for export
 
-#    # Put output into correct order:
-#    lstPrfRes = sorted(lstPrfRes)
-#
-#    # collect results from parallelization
-#    aryBstXpos = joinRes(lstPrfRes, cfg.varPar, 1, inFormat='1D')
-#    aryBstYpos = joinRes(lstPrfRes, cfg.varPar, 2, inFormat='1D')
-#    aryBstSd = joinRes(lstPrfRes, cfg.varPar, 3, inFormat='1D')
-#    aryBstR2 = joinRes(lstPrfRes, cfg.varPar, 4, inFormat='1D')
-#    aryBstBts = joinRes(lstPrfRes, cfg.varPar, 5, inFormat='2D')
-#    if np.greater(cfg.varNumXval, 1):
-#        aryBstR2Single = joinRes(lstPrfRes, cfg.varPar, 6, inFormat='2D')
-#
-#    # Delete unneeded large objects:
-#    del(lstPrfRes)
+    # Put output into correct order:
+    lstPrfRes = sorted(lstPrfRes)
+
+    # collect results from parallelization
+    aryBstPrm = joinRes(lstPrfRes, cfg.varPar, 1, inFormat='2D')
+    aryBstR2 = joinRes(lstPrfRes, cfg.varPar, 2, inFormat='1D')
+    aryBstBts = joinRes(lstPrfRes, cfg.varPar, 3, inFormat='2D')
+    if np.greater(cfg.varNumXval, 1):
+        aryBstR2Single = joinRes(lstPrfRes, cfg.varPar, 4, inFormat='2D')
+
+    # Delete unneeded large objects:
+    del(lstPrfRes)
+
+    # %% Save results to disk:
+
+    # List with name suffices of output images:
+    lstNiiNames = ['_R2']
+
+    # Create full path names from nii file names and output path
+    lstNiiNames = [cfg.strPathOut + strNii + '.nii.gz' for strNii in
+                   lstNiiNames]
+
+    # export beta parameter as a single 4D nii file
+    export_nii(aryBstR2, lstNiiNames, aryLgcMsk, aryLgcVar, tplNiiShp,
+               aryAff, hdrMsk, outFormat='3D')
+
+    # List with name suffices of output images:
+    lstNiiNames = ['_HrfPrm']
+
+    # Create full path names from nii file names and output path
+    lstNiiNames = [cfg.strPathOut + strNii + '.nii.gz' for strNii in
+                   lstNiiNames]
+
+    # export beta parameter as a single 4D nii file
+    export_nii(aryBstPrm, lstNiiNames, aryLgcMsk, aryLgcVar, tplNiiShp,
+               aryAff, hdrMsk, outFormat='4D')
+
+    # List with name suffices of output images:
+    lstNiiNames = ['_Betas']
+
+    # Create full path names from nii file names and output path
+    lstNiiNames = [cfg.strPathOut + strNii + '.nii.gz' for strNii in
+                   lstNiiNames]
+
+    # export beta parameter as a single 4D nii file
+    export_nii(aryBstBts, lstNiiNames, aryLgcMsk, aryLgcVar, tplNiiShp,
+               aryAff, hdrMsk, outFormat='4D')
+
+    if np.greater(cfg.varNumXval, 1):
+
+        # truncate extremely negative R2 values
+        aryBstR2Single[np.where(np.less_equal(aryBstR2Single, -1.0))] = -1.0
+
+        # List with name suffices of output images:
+        lstNiiNames = ['_R2_single']
+
+        # Create full path names from nii file names and output path
+        lstNiiNames = [cfg.strPathOut + strNii + '.nii.gz' for strNii in
+                       lstNiiNames]
+
+        # export R2 maps as a single 4D nii file
+        export_nii(aryBstR2Single, lstNiiNames, aryLgcMsk, aryLgcVar,
+                   tplNiiShp, aryAff, hdrMsk, outFormat='4D')
 
     # %% Report time
 
