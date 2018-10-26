@@ -34,7 +34,7 @@ from pyprf_feature.analysis.model_creation_utils import crt_nrl_tc
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 ###### DEBUGGING ###############
-#strCsvCnfg = "/home/marian/Documents/Git/hrf_opt/config_test.csv"
+#strCsvCnfg = "/home/marian/Documents/Testing/pyprf_feature_devel/control/S02_config_motDepPrf_flck_smooth_inw_hrf_opt.csv"
 #lgcTest = False
 ################################
 
@@ -90,7 +90,7 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # and/or variance - exclude their initial parameters, too
     # Get inclusion mask and nii header
     aryLgcMsk, aryLgcVar, hdrMsk, aryAff, aryFunc, tplNiiShp = prep_func(
-        cfg.strPathNiiMask, cfg.lstPathNiiFunc)
+        cfg.strPathNiiMask, cfg.lstPathNiiFunc, varAvgThr=-100)
 
     # Derive path to R2 results from first fit
     lstR2Path = [cfg.strPathFitRes + '_R2.nii.gz']
@@ -135,6 +135,9 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
 
     # %% Prepare hrf base functions and predicted neural time courses
 
+    # Print statement to user
+    print('---Create predicted neural responses')
+
     # Create hrf parameter combinations
     aryPrm = crt_hrf_prm(cfg.varPkDelMin, cfg.varPkDelMax,
                          cfg.varUndDelMin, cfg.varUndDelMax,
@@ -146,6 +149,11 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # create hrf base functions for each of the model parameter combinations
     aryHrfBse = cvrt_hrf_prm_fn(aryPrm, spm_hrf_compat, cfg.varTr,
                                 cfg.varTmpOvsmpl)
+    # Exclude hrf basis functions that have any NaN values
+    lgcNan = np.any(np.isnan(aryHrfBse), axis=1)
+    aryHrfBse = aryHrfBse[np.invert(lgcNan), :]
+    if np.any(lgcNan):
+        print('------Nan values detected & ecluded in basis hrf functions')
 
     # Load temporal information about when which apertures was presented in the
     # experiment
@@ -172,7 +180,10 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     queOut = mp.Queue()
 
     # Print statement to user
-    print('---hrf_opt will be performed voxels: ' + str(aryFunc.shape[0]))
+    print('---Optimization will be performed on this number of voxels: ' +
+          str(aryFunc.shape[0]))
+    print('---Optimization will be performed on this number of models: ' +
+          str(aryPrm.shape[0]))
 
     # Create list with chunks of functional data for the parallel processes:
     lstFunc = np.array_split(aryFunc, cfg.varPar)
@@ -182,6 +193,8 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # We don't need the original array with the functional data anymore:
     del(aryFunc)
     del(aryNrlRsp)
+
+    print('------Optimize hrf functions')
 
     # Create processes:
     for idxPrc in range(0, cfg.varPar):
@@ -242,8 +255,8 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
                    lstNiiNames]
 
     # export beta parameter as a single 4D nii file
-    export_nii(aryBstR2, lstNiiNames, aryLgcMsk, aryLgcVar, tplNiiShp,
-               aryAff, hdrMsk, outFormat='3D')
+    export_nii(np.atleast_2d(aryBstR2).T, lstNiiNames, aryLgcMsk, aryLgcVar,
+               tplNiiShp, aryAff, hdrMsk, outFormat='3D')
 
     # List with name suffices of output images:
     lstNiiNames = ['_HrfPrm']
