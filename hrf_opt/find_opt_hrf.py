@@ -96,9 +96,6 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
     # Until implemented otherwise, set number of features to 1 here
     varNumFtr = 1
 
-    # Number of models:
-    varNumMdls = aryHrfBse.shape[0]
-
     # Number of voxels to be fitted in this chunk:
     varNumVoxChnk = aryFunc.shape[-1]
 
@@ -184,8 +181,8 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                              str(vecStatPrc[varCntSts01]) +
                              ' % --- ' +
                              str(vecStatPrf[varCntSts01]) +
-                             ' pRF models out of ' +
-                             str(varNumMdls))
+                             ' voxels out of ' +
+                             str(varNumVoxChnk))
                 if lgcPrint:
                     print(strStsMsg)
 
@@ -203,10 +200,10 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
         vecFrmTms = np.arange(0, varTr * varNumVol, varTr / varTmpOvsmpl)
 
         # Convolving the best-fitting neural response with all hrf base fn
-#        aryMdlRsp = cnvl_nrl_hrf(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms,
-#                                 varTr, varNumVol)
-        aryMdlRsp = cnvl_nrl_hrf_vec(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms,
-                                     varTr, varNumVol)
+        aryMdlRsp = cnvl_nrl_hrf(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms,
+                                 varTr, varNumVol)
+#        aryMdlRsp = cnvl_nrl_hrf_vec(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms,
+#                                     varTr, varNumVol)
 
         # Here would be space to implement a fit, for example checking if the
         # voxels time course fullfills specific crieteria.
