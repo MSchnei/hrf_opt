@@ -43,7 +43,7 @@ from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 ################################
 
 
-def hrf_opt(strCsvCnfg, lgcTest=False):
+def hrf_opt_run(strCsvCnfg, lgcTest=False):
     """
     Main function for hrf_opt.
 
