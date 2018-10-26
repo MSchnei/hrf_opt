@@ -23,18 +23,14 @@ import os
 import numpy as np
 import multiprocessing as mp
 
-#from hrf_opt.load_config import load_config
-#from hrf_opt.hrf_opt_utils import cls_set_config, crt_hrf_prm, cvrt_hrf_prm_fn
-#from hrf_opt.find_opt_hrf import find_opt_hrf
-from load_config import load_config
-from hrf_opt_utils import cls_set_config, crt_hrf_prm, cvrt_hrf_prm_fn
-#from find_opt_hrf import find_opt_hrf
+from hrf_opt.load_config import load_config
+from hrf_opt.hrf_opt_utils import cls_set_config, crt_hrf_prm, cvrt_hrf_prm_fn
+from hrf_opt.find_opt_hrf import find_opt_hrf
+
 from pyprf_feature.analysis.utils_general import (load_res_prm, joinRes,
                                                   export_nii)
 from pyprf_feature.analysis.prepare import prep_func
-from pyprf_feature.analysis.model_creation_utils import (crt_mdl_prms,
-                                                         fnd_unq_rws,
-                                                         crt_nrl_tc)
+from pyprf_feature.analysis.model_creation_utils import crt_nrl_tc
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 ###### DEBUGGING ###############
@@ -174,6 +170,9 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
 
     # Create a queue to put the results in:
     queOut = mp.Queue()
+
+    # Print statement to user
+    print('---hrf_opt will be performed voxels: ' + str(aryFunc.shape[0]))
 
     # Create list with chunks of functional data for the parallel processes:
     lstFunc = np.array_split(aryFunc, cfg.varPar)

@@ -95,7 +95,7 @@ strPathFitRes = '/media/sf_D_DRIVE/MotDepPrf/Analysis/S02/03_motLoc/pRF_results/
 # Set fitting details
 
 # R2 threshold that will be applied for voxel inclusion:
-varThrR2 = 0.2
+varThrR2 = 0.35
 
 # Number of processes to run in parallel:
 varPar = 10

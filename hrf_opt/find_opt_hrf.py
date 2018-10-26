@@ -19,14 +19,12 @@
 
 import numpy as np
 from sklearn.model_selection import KFold
-from pyprf_feature.analysis.model_creation_utils import fnd_unq_rws
-#from hrf_opt.find_hrf_utils_cy_one import (cy_lst_sq_one, cy_lst_sq_xval_one)
-#from hrf_opt.find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
-from find_hrf_utils_cy_one import (cy_lst_sq_one, cy_lst_sq_xval_one)
-#from find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
-#from hrf_opt.hrf_opt_utils import (cnvl_nrl_hrf, cnvl_nrl_hrf_vec)
-from hrf_opt_utils import (cnvl_nrl_hrf, cnvl_nrl_hrf_vec, cvrt_hrf_prm_fn)
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
+
+from hrf_opt.find_hrf_utils_cy_one import (cy_lst_sq_one, cy_lst_sq_xval_one)
+#from hrf_opt.find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
+from hrf_opt.hrf_opt_utils import (cnvl_nrl_hrf, cnvl_nrl_hrf_vec,
+                                   cvrt_hrf_prm_fn)
 
 
 def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
