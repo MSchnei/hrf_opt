@@ -99,6 +99,12 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
     # Number of voxels to be fitted in this chunk:
     varNumVoxChnk = aryFunc.shape[-1]
 
+    # Number of models:
+    varNumMdls = aryHrfBse.shape[0]
+
+    # Make array to collect residuals for all voxels and models
+    aryClcRes = np.zeros((varNumVoxChnk, varNumMdls)).astype(np.float32)
+
     # Vectors for hrf finding results.
     # Make sure they have the same precision as aryPrm, since this
     # is important for later comparison
@@ -266,6 +272,9 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                         print('Cython currently not implemented for ' +
                               'more than two two predictors.')
 
+            # Collect residuals for this voxel for all models
+            aryClcRes[idxVxl, :] = vecTmpRes
+
             # Get index for the winner model
             idxWnrMdl = np.argmin(vecTmpRes)
 
@@ -364,6 +373,7 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                   vecBstPrm,
                   vecBstR2,
                   aryBstBts,
+                  aryClcRes,
                   aryBstR2fld]
 
         queOut.put(lstOut)
@@ -388,6 +398,7 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
         lstOut = [idxPrc,
                   vecBstPrm,
                   vecBstR2,
-                  aryBstBts]
+                  aryBstBts,
+                  aryClcRes]
 
         queOut.put(lstOut)

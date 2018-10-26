@@ -239,8 +239,9 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     aryBstPrm = joinRes(lstPrfRes, cfg.varPar, 1, inFormat='2D')
     aryBstR2 = joinRes(lstPrfRes, cfg.varPar, 2, inFormat='1D')
     aryBstBts = joinRes(lstPrfRes, cfg.varPar, 3, inFormat='2D')
+    aryAllRes = joinRes(lstPrfRes, cfg.varPar, 4, inFormat='2D')
     if np.greater(cfg.varNumXval, 1):
-        aryBstR2Single = joinRes(lstPrfRes, cfg.varPar, 4, inFormat='2D')
+        aryBstR2Single = joinRes(lstPrfRes, cfg.varPar, 5, inFormat='2D')
 
     # Delete unneeded large objects:
     del(lstPrfRes)
@@ -295,6 +296,17 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
         # export R2 maps as a single 4D nii file
         export_nii(aryBstR2Single, lstNiiNames, aryLgcMsk, aryLgcVar,
                    tplNiiShp, aryAff, hdrMsk, outFormat='4D')
+
+    # %% Save global winner hrf parameter combinations
+
+    # Save the hrf parameter combination that minimizes across all voxels
+    arySumRes = np.sum(aryAllRes, axis=0)
+    vecMinPrm = aryPrm[np.argmin(arySumRes, axis=0), :]
+    np.save(cfg.strPathOut + '_minHrfPrm', vecMinPrm)
+
+    # Save the average hrf parameter combination across all voxels
+    vecAvgPrm = np.mean(aryBstPrm, axis=0)
+    np.save(cfg.strPathOut + '_avgHrfPrm', vecAvgPrm)
 
     # %% Report time
 
