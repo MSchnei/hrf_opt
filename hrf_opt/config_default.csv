@@ -37,7 +37,7 @@ varDelStp = 1.0
 varPkDspMin = 0.1
 
 # Maximum dispersion for the peak of the hrf function:
-varPkDspMax = 3.5
+varPkDspMax = 2.5
 
 # Minimum dispersion for the undershoot of the hrf function:
 varUndDspMin = 0.1
@@ -49,13 +49,13 @@ varUndDspMax = 3.5
 varDspStp = 0.2
 
 # Minimum peak to undershoot ratio:
-varPkUndRatMin = 1.5
+varPkUndRatMin = 1.1
 
 # Maximum peak to undershoot ratio:
-varPkUndRatMax = 10.5
+varPkUndRatMax = 2.0
 
 # Step size for the peak to undershoot ratio
-varPkUndRatStp = 1.0
+varPkUndRatStp = 0.1
 
 # Factor by which time courses and HRF will be upsampled for the convolutions
 # Higher number might yield more accurate reults but also takes up more RAM.
