@@ -7,11 +7,11 @@ For development installation:
 
 from setuptools import setup
 
-#with open('README.rst') as f:
-#    long_description = f.read()
+with open('README.rst') as f:
+    long_description = f.read()
 
 setup(name='hrf_opt',
-      version='1.0.0',
+      version='1.0.1',
       description=('Optimize hemodynamic response function parameters.'),
       url='https://github.com/MSchnei/hrf_opt',
       author='Marian Schneider',
@@ -20,7 +20,7 @@ setup(name='hrf_opt',
       install_requires=['numpy', 'scipy', 'nibabel', 'cython==0.27.1',
                         'scikit-learn==0.19.1'],
       keywords=['pRF', 'fMRI', 'retinotopy'],
-#      long_description=long_description,
+      long_description=long_description,
       packages=['hrf_opt'],
       entry_points={
           'console_scripts': [
