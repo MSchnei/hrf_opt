@@ -23,14 +23,34 @@ conda install pip
 git clone https://github.com/MSchnei/hrf_opt.git
 ```
 
-2. Install numpy, e.g. by running:
-```bash
-pip install numpy
-```
-
-3. Install pyprf_feature with pip
+2. Install hrf_opt with pip
 ```bash
 pip install /path/to/cloned/hrf_opt
+```
+
+## How to use
+### 1. Run pyprf_feature to obtain an initial guess of the pRF parameters
+See [here](https://github.com/MSchnei/pyprf_feature) for more information on how to use pyprf_feature.
+In brief, open a terminal and run:
+```
+pyprf_feature -config path/to/custom_pRF_config.csv
+```
+
+### 2. Obtain model responses for every voxel for best-fitting pRF model
+When pyprf_feature is done, run it again with -save_tc and -mdl_rsp flag.
+This will save the fitted pRF model time courses and corresponding neural responses to disk:
+```
+pyprf_feature -config path/to/custom_pRF_config.csv -save_tc -mdl_rsp
+```
+
+### 3. Adjust the csv file for hrf_opt
+Adjust the information in the config_default.csv file in the hrf_opt folder, such that the provided information is correct.
+It is recommended to make a specific copy of the csv file for every subject.
+
+### 4. Run hrf_opt
+Open a terminal and run:
+```
+hrf_opt -config path/to/custom_hrf_opt_config.csv
 ```
 
 ## References
