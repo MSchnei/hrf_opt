@@ -34,7 +34,7 @@ from pyprf_feature.analysis.model_creation_utils import crt_nrl_tc
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 ###### DEBUGGING ###############
-#strCsvCnfg = "/home/marian/Documents/Testing/pyprf_feature_devel/control/S02_config_motDepPrf_flck_smooth_inw_hrf_opt.csv"
+#strCsvCnfg = "/media/sf_D_DRIVE/MotionQuartet/Analysis/P3/Prf/Fitting/pRF_results/P3_hrf_opt.csv"
 #lgcTest = False
 ################################
 
@@ -109,7 +109,7 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     vecR2 = vecR2[aryLgcVar]
 
     # Derive path to aperture responses for winner model from first fit
-    lstMdlRspPath = [cfg.strPathFitRes + '_FitMdlRsp.nii.gz']
+    strMdlRspPath = cfg.strPathFitRes + '_FitMdlRsp.npy'
     # Check if winner model responses to aperture conditions have been saved,
     # i.e. pyprf_feature was run with -save_tc -mdl_rsp flags after fitting
     errorMsg = 'Files that should have resulted from fitting do not exist. \
@@ -117,19 +117,17 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
                 pyprf_feature with the -save_tc and -mdl_rsp flags: \
                 \npyprf_feature -config /path/to/config.csv -save_tc -mdl_rsp'
     # Check if fitting has been performed, i.e. whether response file exists
-    assert os.path.isfile(lstMdlRspPath[0]), errorMsg
+    assert os.path.isfile(strMdlRspPath), errorMsg
     # Load response to apertures for each voxel for winner model from first fit
-    lstMdlRspPath = [cfg.strPathFitRes + '_FitMdlRsp.nii.gz']
-    aryMdlRsp = load_res_prm(lstMdlRspPath,
-                             lstFlsMsk=[cfg.strPathNiiMask])[0][0]
+    aryMdlRsp = np.load(strMdlRspPath)
     # Apply inclusion mask to aryMdlRsp
-    aryMdlRsp = aryMdlRsp[aryLgcVar, :]
+    aryMdlRsp = aryMdlRsp[aryLgcVar, ...]
 
     # Obtain a mask for voxel inclusion by thresholding with R2 value
     aryLgcR2 = np.greater(vecR2, cfg.varThrR2)
     # Apply the R2 mask to aryFunc and aryMdlRsp
     aryFunc = aryFunc[aryLgcR2, :]
-    aryMdlRsp = aryMdlRsp[aryLgcR2, :]
+    aryMdlRsp = aryMdlRsp[aryLgcR2, ...]
     # Apply the R2 mask to voxel inclusion mask
     aryLgcVar[aryLgcVar] = aryLgcR2
 
