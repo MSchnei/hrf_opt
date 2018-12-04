@@ -34,7 +34,7 @@ from pyprf_feature.analysis.model_creation_utils import crt_nrl_tc
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 ###### DEBUGGING ###############
-#strCsvCnfg = "/media/sf_D_DRIVE/MotionQuartet/Analysis/P3/Prf/Fitting/pRF_results/P3_hrf_opt.csv"
+#strCsvCnfg = "/home/marian/Documents/Testing/pyprf_feature_devel/control/S02_config_motDepPrf_flck_smooth_inw_hrf_opt.csv"
 #lgcTest = False
 ################################
 
@@ -69,6 +69,7 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # that fitting
     if cfg.lgcSupsur:
         cfg.strPathOut = cfg.strPathOut + '_supsur'
+        cfg.strPathFitRes = cfg.strPathFitRes + '_supsur'
 
     # Convert preprocessing parameters (for temporal smoothing)
     # from SI units (i.e. [s]) into units of data array (volumes):
@@ -120,8 +121,6 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     assert os.path.isfile(strMdlRspPath), errorMsg
     # Load response to apertures for each voxel for winner model from first fit
     aryMdlRsp = np.load(strMdlRspPath)
-    # Apply inclusion mask to aryMdlRsp
-    aryMdlRsp = aryMdlRsp[aryLgcVar, ...]
 
     # Obtain a mask for voxel inclusion by thresholding with R2 value
     aryLgcR2 = np.greater(vecR2, cfg.varThrR2)
