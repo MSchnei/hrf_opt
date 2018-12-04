@@ -20,9 +20,8 @@
 import numpy as np
 from sklearn.model_selection import KFold
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
-
 from hrf_opt.find_hrf_utils_cy_one import (cy_lst_sq_one, cy_lst_sq_xval_one)
-#from hrf_opt.find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
+from hrf_opt.find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
 from hrf_opt.hrf_opt_utils import (cnvl_nrl_hrf, cnvl_nrl_hrf_vec,
                                    cvrt_hrf_prm_fn)
 
@@ -75,7 +74,8 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
         vecBstYpos : np.array
             1D array with best fitting y-position for each voxel, with shape
             vecBstYpos[voxel].
-        vecBstSd : np.array
+        vecBstSd : np.arrayfrom hrf_opt.find_hrf_utils_cy_one import (cy_lst_sq_one, cy_lst_sq_xval_one)
+from hrf_opt.find_hrf_utils_cy_two import (cy_lst_sq_two, cy_lst_sq_xval_two)
             1D array with best fitting pRF size for each voxel, with shape
             vecBstSd[voxel].
         vecBstR2 : np.array
@@ -94,7 +94,7 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
     """
 
     # Until implemented otherwise, set number of features to 1 here
-    varNumFtr = 1
+    varNumFtr = aryNrlRsp.shape[1]
 
     # Number of voxels to be fitted in this chunk:
     varNumVoxChnk = aryFunc.shape[-1]
@@ -117,7 +117,7 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
 
     # array for best beta values. If we update the residual value above because
     # it is lower, we also update the beta values of these voxels
-    aryBstBts = np.zeros((varNumVoxChnk, 1)).astype(np.float32)
+    aryBstBts = np.zeros((varNumVoxChnk, varNumFtr)).astype(np.float32)
 
     # In case we cross-validate we also save and replace the best
     # residual values for every fold (not only mean across folds):
@@ -198,7 +198,7 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                     varCntSts01 = varCntSts01 + int(1)
 
         # For this particular voxel get best-fitting neural response
-        vecNrlRsp = aryNrlRsp[idxVxl, :].astype(np.float32)
+        aryVxlNrlRsp = np.atleast_2d(aryNrlRsp[idxVxl, ...]).astype(np.float32)
         # Get frame times, i.e. start point of every volume in seconds
         vecFrms = np.arange(0, varTr * varNumVol, varTr)
         # Get supersampled frames times, i.e. start point of every volume in
@@ -206,12 +206,12 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
         vecFrmTms = np.arange(0, varTr * varNumVol, varTr / varTmpOvsmpl)
 
         # Convolving the best-fitting neural response with all hrf base fn
-        aryMdlRsp = cnvl_nrl_hrf(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms,
+        aryMdlRsp = cnvl_nrl_hrf(aryVxlNrlRsp, aryHrfBse, vecFrms, vecFrmTms,
                                  varTr, varNumVol)
-#        aryMdlRsp = cnvl_nrl_hrf_vec(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms,
-#                                     varTr, varNumVol)
+#        aryMdlRsp = cnvl_nrl_hrf_vec(aryVxlNrlRsp, aryHrfBse, vecFrms,
+#                                     vecFrmTms, varTr, varNumVol)
 
-        # Here would be space to implement a fit, for example checking if the
+        # Here would be space to implement a check, for example checking if the
         # voxels time course fullfills specific crieteria.
         # For now just set lgcFit to True
         lgcFit = True
@@ -230,16 +230,16 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                 # beta parameter estimates of the current model:
                 if varNumFtr == 1:
                     # For time course with one predictors
-                    aryResXval = cy_lst_sq_xval_one(aryMdlRsp.T,
+                    aryResXval = cy_lst_sq_xval_one(np.squeeze(aryMdlRsp).T,
                                                     aryFunc[:, idxVxl],
                                                     aryIdxTrn,
                                                     aryIdxTst)
 
                 elif varNumFtr == 2:
                     # For time course with two predictors
-                    if lgcPrint:
-                        print('Cython currently not implemented for ' +
-                              'time course with two predictors.')
+                    aryResXval = cy_lst_sq_xval_two(
+                        np.transpose(aryMdlRsp, (2, 1, 0)), aryFunc[:, idxVxl],
+                        aryIdxTrn, aryIdxTst)
 
                 else:
                     if lgcPrint:
@@ -259,14 +259,13 @@ def find_opt_hrf(idxPrc, aryFunc, aryNrlRsp, aryHrfBse, aryPrm, varTr,
                 # beta parameter estimates of the current model:
                 if varNumFtr == 1:
                     # For time course with one predictor
-                    aryTmpBts, vecTmpRes = cy_lst_sq_one(aryMdlRsp.T,
-                                                         aryFunc[:, idxVxl])
+                    aryTmpBts, vecTmpRes = cy_lst_sq_one(
+                        np.squeeze(aryMdlRsp).T, aryFunc[:, idxVxl])
 
                 elif varNumFtr == 2:
                     # For time course with two predictors
-                    if lgcPrint:
-                        print('Cython currently not implemented for ' +
-                              'time course with two predictors.')
+                    aryTmpBts, vecTmpRes = cy_lst_sq_two(
+                        np.transpose(aryMdlRsp, (2, 1, 0)), aryFunc[:, idxVxl])
                 else:
                     if lgcPrint:
                         print('Cython currently not implemented for ' +

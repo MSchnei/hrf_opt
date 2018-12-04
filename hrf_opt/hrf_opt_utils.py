@@ -164,13 +164,13 @@ def cvrt_hrf_prm_fn(aryPrm, fnHrf, varTr, varTmpOvsmpl, varHrfLen=32.):
     return aryHrfBse
 
 
-def cnvl_nrl_hrf(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr, varNumVol):
+def cnvl_nrl_hrf(aryNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr, varNumVol):
     """Convolution, un-vectorized, requires less RAM.
 
     Parameters
     ----------
-    vecNrlRsp : 1D numpy array
-        Neural response function taht won for this voxel in first fit.
+    aryNrlRsp : 2D numpy array
+        Neural response function(s) that won for this voxel in first fit.
     aryHrfBse : 2D numpy array
         All basic hrf functions.
     vecFrms : 1D numpy array
@@ -191,33 +191,36 @@ def cnvl_nrl_hrf(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr, varNumVol):
     """
 
     # Prepare an empty array for convolution ouput
-    aryConv = np.zeros((aryHrfBse.shape[0], varNumVol),
+    aryConv = np.zeros((aryHrfBse.shape[0], aryNrlRsp.shape[0], varNumVol),
                        dtype=np.float32)
 
-    # Convolving the best-fitting neural response with all hrf base fn
-    for indBse, vecHrfBse in enumerate(aryHrfBse):
-        # Make sure hrf basis function is float64 to avoid overflow
-        vecHrfBse = vecHrfBse.astype(np.float64)
-        # Perform the convolution (previously: np.convolve)
-        col = fftconvolve(vecHrfBse, vecNrlRsp,
-                          mode='full')[:vecNrlRsp.size]
-        # Get function for downsampling
-        f = interp1d(vecFrmTms, col)
-        # Downsample to original resoltuion to match res of data
-        # take the value from the centre of each volume's period (see FSL)
-        aryConv[indBse, :] = f(vecFrms + varTr/2.)
+    # Loop over neural responses
+    for indNrlRsp, vecNrlRsp in enumerate(aryNrlRsp):
+
+        # Convolving the best-fitting neural response with all hrf base fn
+        for indBse, vecHrfBse in enumerate(aryHrfBse):
+            # Make sure hrf basis function is float64 to avoid overflow
+            vecHrfBse = vecHrfBse.astype(np.float64)
+            # Perform the convolution
+            col = fftconvolve(vecHrfBse, vecNrlRsp,
+                              mode='full')[:vecNrlRsp.size]
+            # Get function for downsampling
+            f = interp1d(vecFrmTms, col)
+            # Downsample to original resoltuion to match res of data
+            # take the value from the centre of each volume's period (see FSL)
+            aryConv[indBse, indNrlRsp, :] = f(vecFrms + varTr/2.)
 
     return aryConv
 
 
-def cnvl_nrl_hrf_vec(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr,
+def cnvl_nrl_hrf_vec(aryNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr,
                      varNumVol):
     """Convolution, vectorized but requires more RAM.
 
     Parameters
     ----------
-    vecNrlRsp : 1D numpy array
-        Neural response function taht won for this voxel in first fit.
+    aryNrlRsp : 2D numpy array
+        Neural response function(s) that won for this voxel in first fit.
     aryHrfBse : 2D numpy array
         All basic hrf functions.
     vecFrms : 1D numpy array
@@ -237,14 +240,21 @@ def cnvl_nrl_hrf_vec(vecNrlRsp, aryHrfBse, vecFrms, vecFrmTms, varTr,
 
     """
 
-    # Perform the convolution (previously: np.convolve)
-    col = fftconvolve(aryHrfBse, vecNrlRsp[None, :],
-                      mode='full')[:, :vecNrlRsp.size]
-    # Get function for downsampling
-    f = interp1d(vecFrmTms, col)
-    # Downsample to original resoltuion to match res of data
-    # take the value from the centre of each volume's period (see FSL)
-    aryConv = f(vecFrms + varTr/2.)
+    # Prepare an empty array for convolution ouput
+    aryConv = np.zeros((aryHrfBse.shape[0], aryNrlRsp.shape[0], varNumVol),
+                       dtype=np.float32)
+
+    # Loop over neural responses
+    for indNrlRsp, vecNrlRsp in enumerate(aryNrlRsp):
+
+        # Perform the convolution
+        col = fftconvolve(aryHrfBse, vecNrlRsp[None, :],
+                          mode='full')[:, :vecNrlRsp.size]
+        # Get function for downsampling
+        f = interp1d(vecFrmTms, col)
+        # Downsample to original resoltuion to match res of data
+        # take the value from the centre of each volume's period (see FSL)
+        aryConv[:, indNrlRsp, :] = f(vecFrms + varTr/2.)
 
     return aryConv.astype(np.float32)
 
