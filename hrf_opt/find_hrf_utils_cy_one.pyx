@@ -103,9 +103,10 @@ cpdef tuple cy_lst_sq_one(
 
     # Convert memory view to numpy array before returning it:
     vecRes = np.asarray(vecRes_view)
-    vecPe = np.asarray(vecPe_view)
+    vecPe = np.asarray(vecPe_view).T
 
-    return vecPe.reshape(1, -1), vecRes
+    return vecPe, vecRes
+
 # *****************************************************************************
 
 # *****************************************************************************
@@ -123,7 +124,7 @@ cdef (float[:], float[:]) func_cy_res(float[:, :] aryMdlRsp_view,
         unsigned int idxVol
         unsigned long idxMdl
 
-    # Loop through voxels:
+    # Loop through models:
     for idxMdl in range(varNumMdls):
 
         # Covariance and residuals of current voxel:
