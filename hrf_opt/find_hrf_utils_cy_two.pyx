@@ -151,11 +151,22 @@ cdef (float[:], float[:, :]) func_cy_res_two(float[:, :, :] aryMdlRsp_view,
                           * aryMdlRsp_view[idxVol, 0, idxMdl])
             varCovX2y += (vecFunc_view[idxVol]
                           * aryMdlRsp_view[idxVol, 1, idxMdl])
-        # calculate denominator
-        varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
-        # Obtain the slope of the regression of the model on the data:
-        varSlope1 = (varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) / varDen
-        varSlope2 = (varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) / varDen
+
+        # Check if variation is zero
+        if varVarX2 == 0.0:
+            # If the variation in predictor 2 is zero, then obtain only the
+            # slope of regression of predictor 1 on the data:
+            varSlope1 = varCovX1y / varVarX1
+            # Set the slope for predictor 2 to zero:
+            varSlope2 = 0.0
+        else:
+            # Calculate denominator
+            varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
+            # Obtain the slope of the regression of the model on the data:
+            varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+                         varDen)
+            varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+                         varDen)
 
         # Loop through volumes again in order to calculate the error in the
         # prediction:
@@ -312,14 +323,22 @@ cdef float[:, :] func_cy_res_xval(float[:, :, :] aryMdlRsp_view,
                 varCovX2y += (vecFunc_view[idxVol]
                               * aryMdlRsp_view[idxVol, 1, idxMdl])
 
-            # calculate denominator
-            varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
-            # Obtain the slope of the regression of the model on the data:
-            varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
-                         varDen)
-            varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
-                         varDen)
-
+            # Check if variation is zero
+            if varVarX2 == 0.0:
+                # If the variation in predictor 2 is zero, then obtain only the
+                # slope of regression of predictor 1 on the data:
+                varSlope1 = varCovX1y / varVarX1
+                # Set the slope for predictor 2 to zero:
+                varSlope2 = 0.0
+            else:
+                # Calculate denominator
+                varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
+                # Obtain the slope of the regression of the model on the data:
+                varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+                             varDen)
+                varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+                             varDen)
+                
             # Loop through test volumes and calculate the predicted time course
             # value and the mismatch between prediction and actual voxel value
             for idxItr in range(varNumVolTst):

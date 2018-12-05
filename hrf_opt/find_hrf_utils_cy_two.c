@@ -3092,20 +3092,21 @@ static __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx
   size_t __pyx_t_23;
   Py_ssize_t __pyx_t_24;
   size_t __pyx_t_25;
-  float __pyx_t_26;
-  size_t __pyx_t_27;
-  Py_ssize_t __pyx_t_28;
-  size_t __pyx_t_29;
+  int __pyx_t_26;
+  float __pyx_t_27;
+  size_t __pyx_t_28;
+  Py_ssize_t __pyx_t_29;
   size_t __pyx_t_30;
-  Py_ssize_t __pyx_t_31;
-  size_t __pyx_t_32;
+  size_t __pyx_t_31;
+  Py_ssize_t __pyx_t_32;
   size_t __pyx_t_33;
   size_t __pyx_t_34;
   size_t __pyx_t_35;
-  Py_ssize_t __pyx_t_36;
-  size_t __pyx_t_37;
-  Py_ssize_t __pyx_t_38;
-  __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx_t_39;
+  size_t __pyx_t_36;
+  Py_ssize_t __pyx_t_37;
+  size_t __pyx_t_38;
+  Py_ssize_t __pyx_t_39;
+  __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx_t_40;
   __Pyx_RefNannySetupContext("func_cy_res_two", 0);
 
   /* "hrf_opt/find_hrf_utils_cy_two.pyx":132
@@ -3334,7 +3335,7 @@ static __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx
  *                           * aryMdlRsp_view[idxVol, 0, idxMdl])
  *             varCovX2y += (vecFunc_view[idxVol]             # <<<<<<<<<<<<<<
  *                           * aryMdlRsp_view[idxVol, 1, idxMdl])
- *         # calculate denominator
+ * 
  */
       __pyx_t_22 = __pyx_v_idxVol;
       __pyx_t_8 = -1;
@@ -3348,8 +3349,8 @@ static __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx
  *                           * aryMdlRsp_view[idxVol, 0, idxMdl])
  *             varCovX2y += (vecFunc_view[idxVol]
  *                           * aryMdlRsp_view[idxVol, 1, idxMdl])             # <<<<<<<<<<<<<<
- *         # calculate denominator
- *         varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
+ * 
+ *         # Check if variation is zero
  */
       __pyx_t_23 = __pyx_v_idxVol;
       __pyx_t_24 = 1;
@@ -3371,49 +3372,110 @@ static __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx
  *                           * aryMdlRsp_view[idxVol, 0, idxMdl])
  *             varCovX2y += (vecFunc_view[idxVol]             # <<<<<<<<<<<<<<
  *                           * aryMdlRsp_view[idxVol, 1, idxMdl])
- *         # calculate denominator
+ * 
  */
       __pyx_v_varCovX2y = (__pyx_v_varCovX2y + ((*((float *) ( /* dim=0 */ (__pyx_v_vecFunc_view.data + __pyx_t_22 * __pyx_v_vecFunc_view.strides[0]) ))) * (*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_23 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_24 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_25 * __pyx_v_aryMdlRsp_view.strides[2]) )))));
     }
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":155
- *                           * aryMdlRsp_view[idxVol, 1, idxMdl])
- *         # calculate denominator
- *         varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2             # <<<<<<<<<<<<<<
- *         # Obtain the slope of the regression of the model on the data:
- *         varSlope1 = (varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) / varDen
+    /* "hrf_opt/find_hrf_utils_cy_two.pyx":156
+ * 
+ *         # Check if variation is zero
+ *         if varVarX2 == 0.0:             # <<<<<<<<<<<<<<
+ *             # If the variation in predictor 2 is zero, then obtain only the
+ *             # slope of regression of predictor 1 on the data:
  */
-    __pyx_v_varDen = ((__pyx_v_varVarX1 * __pyx_v_varVarX2) - powf(__pyx_v_varVarX1X2, 2.0));
+    __pyx_t_26 = ((__pyx_v_varVarX2 == 0.0) != 0);
+    if (__pyx_t_26) {
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":157
- *         varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
- *         # Obtain the slope of the regression of the model on the data:
- *         varSlope1 = (varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) / varDen             # <<<<<<<<<<<<<<
- *         varSlope2 = (varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) / varDen
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":159
+ *             # If the variation in predictor 2 is zero, then obtain only the
+ *             # slope of regression of predictor 1 on the data:
+ *             varSlope1 = varCovX1y / varVarX1             # <<<<<<<<<<<<<<
+ *             # Set the slope for predictor 2 to zero:
+ *             varSlope2 = 0.0
+ */
+      if (unlikely(__pyx_v_varVarX1 == 0)) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+        __PYX_ERR(0, 159, __pyx_L1_error)
+      }
+      __pyx_v_varSlope1 = (__pyx_v_varCovX1y / __pyx_v_varVarX1);
+
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":161
+ *             varSlope1 = varCovX1y / varVarX1
+ *             # Set the slope for predictor 2 to zero:
+ *             varSlope2 = 0.0             # <<<<<<<<<<<<<<
+ *         else:
+ *             # Calculate denominator
+ */
+      __pyx_v_varSlope2 = 0.0;
+
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":156
+ * 
+ *         # Check if variation is zero
+ *         if varVarX2 == 0.0:             # <<<<<<<<<<<<<<
+ *             # If the variation in predictor 2 is zero, then obtain only the
+ *             # slope of regression of predictor 1 on the data:
+ */
+      goto __pyx_L7;
+    }
+
+    /* "hrf_opt/find_hrf_utils_cy_two.pyx":164
+ *         else:
+ *             # Calculate denominator
+ *             varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2             # <<<<<<<<<<<<<<
+ *             # Obtain the slope of the regression of the model on the data:
+ *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+ */
+    /*else*/ {
+      __pyx_v_varDen = ((__pyx_v_varVarX1 * __pyx_v_varVarX2) - powf(__pyx_v_varVarX1X2, 2.0));
+
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":166
+ *             varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
+ *             # Obtain the slope of the regression of the model on the data:
+ *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /             # <<<<<<<<<<<<<<
+ *                          varDen)
+ *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+ */
+      __pyx_t_27 = ((__pyx_v_varVarX2 * __pyx_v_varCovX1y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX2y));
+
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":167
+ *             # Obtain the slope of the regression of the model on the data:
+ *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+ *                          varDen)             # <<<<<<<<<<<<<<
+ *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+ *                          varDen)
+ */
+      if (unlikely(__pyx_v_varDen == 0)) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+        __PYX_ERR(0, 166, __pyx_L1_error)
+      }
+      __pyx_v_varSlope1 = (__pyx_t_27 / __pyx_v_varDen);
+
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":168
+ *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+ *                          varDen)
+ *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /             # <<<<<<<<<<<<<<
+ *                          varDen)
  * 
  */
-    __pyx_t_26 = ((__pyx_v_varVarX2 * __pyx_v_varCovX1y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX2y));
-    if (unlikely(__pyx_v_varDen == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 157, __pyx_L1_error)
-    }
-    __pyx_v_varSlope1 = (__pyx_t_26 / __pyx_v_varDen);
+      __pyx_t_27 = ((__pyx_v_varVarX1 * __pyx_v_varCovX2y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX1y));
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":158
- *         # Obtain the slope of the regression of the model on the data:
- *         varSlope1 = (varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) / varDen
- *         varSlope2 = (varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) / varDen             # <<<<<<<<<<<<<<
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":169
+ *                          varDen)
+ *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+ *                          varDen)             # <<<<<<<<<<<<<<
  * 
  *         # Loop through volumes again in order to calculate the error in the
  */
-    __pyx_t_26 = ((__pyx_v_varVarX1 * __pyx_v_varCovX2y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX1y));
-    if (unlikely(__pyx_v_varDen == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 158, __pyx_L1_error)
+      if (unlikely(__pyx_v_varDen == 0)) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+        __PYX_ERR(0, 168, __pyx_L1_error)
+      }
+      __pyx_v_varSlope2 = (__pyx_t_27 / __pyx_v_varDen);
     }
-    __pyx_v_varSlope2 = (__pyx_t_26 / __pyx_v_varDen);
+    __pyx_L7:;
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":162
+    /* "hrf_opt/find_hrf_utils_cy_two.pyx":173
  *         # Loop through volumes again in order to calculate the error in the
  *         # prediction:
  *         for idxVol in range(varNumVols):             # <<<<<<<<<<<<<<
@@ -3424,145 +3486,145 @@ static __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_v_idxVol = __pyx_t_4;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":164
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":175
  *         for idxVol in range(varNumVols):
  *             # The predicted voxel time course value:
  *             varXhat = (aryMdlRsp_view[idxVol, 0, idxMdl] * varSlope1 +             # <<<<<<<<<<<<<<
  *                        aryMdlRsp_view[idxVol, 1, idxMdl] * varSlope2)
  *             # Mismatch between prediction and actual voxel value (variance):
  */
-      __pyx_t_27 = __pyx_v_idxVol;
-      __pyx_t_28 = 0;
-      __pyx_t_29 = __pyx_v_idxMdl;
+      __pyx_t_28 = __pyx_v_idxVol;
+      __pyx_t_29 = 0;
+      __pyx_t_30 = __pyx_v_idxMdl;
       __pyx_t_8 = -1;
-      if (unlikely(__pyx_t_27 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_8 = 0;
-      if (__pyx_t_28 < 0) {
-        __pyx_t_28 += __pyx_v_aryMdlRsp_view.shape[1];
-        if (unlikely(__pyx_t_28 < 0)) __pyx_t_8 = 1;
-      } else if (unlikely(__pyx_t_28 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_8 = 1;
-      if (unlikely(__pyx_t_29 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_8 = 2;
+      if (unlikely(__pyx_t_28 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_8 = 0;
+      if (__pyx_t_29 < 0) {
+        __pyx_t_29 += __pyx_v_aryMdlRsp_view.shape[1];
+        if (unlikely(__pyx_t_29 < 0)) __pyx_t_8 = 1;
+      } else if (unlikely(__pyx_t_29 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_8 = 1;
+      if (unlikely(__pyx_t_30 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_8 = 2;
       if (unlikely(__pyx_t_8 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_8);
-        __PYX_ERR(0, 164, __pyx_L1_error)
+        __PYX_ERR(0, 175, __pyx_L1_error)
       }
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":165
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":176
  *             # The predicted voxel time course value:
  *             varXhat = (aryMdlRsp_view[idxVol, 0, idxMdl] * varSlope1 +
  *                        aryMdlRsp_view[idxVol, 1, idxMdl] * varSlope2)             # <<<<<<<<<<<<<<
  *             # Mismatch between prediction and actual voxel value (variance):
  *             varRes += (vecFunc_view[idxVol] - varXhat) ** 2
  */
-      __pyx_t_30 = __pyx_v_idxVol;
-      __pyx_t_31 = 1;
-      __pyx_t_32 = __pyx_v_idxMdl;
+      __pyx_t_31 = __pyx_v_idxVol;
+      __pyx_t_32 = 1;
+      __pyx_t_33 = __pyx_v_idxMdl;
       __pyx_t_8 = -1;
-      if (unlikely(__pyx_t_30 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_8 = 0;
-      if (__pyx_t_31 < 0) {
-        __pyx_t_31 += __pyx_v_aryMdlRsp_view.shape[1];
-        if (unlikely(__pyx_t_31 < 0)) __pyx_t_8 = 1;
-      } else if (unlikely(__pyx_t_31 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_8 = 1;
-      if (unlikely(__pyx_t_32 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_8 = 2;
+      if (unlikely(__pyx_t_31 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_8 = 0;
+      if (__pyx_t_32 < 0) {
+        __pyx_t_32 += __pyx_v_aryMdlRsp_view.shape[1];
+        if (unlikely(__pyx_t_32 < 0)) __pyx_t_8 = 1;
+      } else if (unlikely(__pyx_t_32 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_8 = 1;
+      if (unlikely(__pyx_t_33 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_8 = 2;
       if (unlikely(__pyx_t_8 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_8);
-        __PYX_ERR(0, 165, __pyx_L1_error)
+        __PYX_ERR(0, 176, __pyx_L1_error)
       }
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":164
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":175
  *         for idxVol in range(varNumVols):
  *             # The predicted voxel time course value:
  *             varXhat = (aryMdlRsp_view[idxVol, 0, idxMdl] * varSlope1 +             # <<<<<<<<<<<<<<
  *                        aryMdlRsp_view[idxVol, 1, idxMdl] * varSlope2)
  *             # Mismatch between prediction and actual voxel value (variance):
  */
-      __pyx_v_varXhat = (((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_27 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_28 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_29 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope1) + ((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_30 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_31 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_32 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope2));
+      __pyx_v_varXhat = (((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_28 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_29 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_30 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope1) + ((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_31 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_32 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_33 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope2));
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":167
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":178
  *                        aryMdlRsp_view[idxVol, 1, idxMdl] * varSlope2)
  *             # Mismatch between prediction and actual voxel value (variance):
  *             varRes += (vecFunc_view[idxVol] - varXhat) ** 2             # <<<<<<<<<<<<<<
  * 
  *         vecRes_view[idxMdl] = varRes
  */
-      __pyx_t_33 = __pyx_v_idxVol;
+      __pyx_t_34 = __pyx_v_idxVol;
       __pyx_t_8 = -1;
-      if (unlikely(__pyx_t_33 >= (size_t)__pyx_v_vecFunc_view.shape[0])) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_34 >= (size_t)__pyx_v_vecFunc_view.shape[0])) __pyx_t_8 = 0;
       if (unlikely(__pyx_t_8 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_8);
-        __PYX_ERR(0, 167, __pyx_L1_error)
+        __PYX_ERR(0, 178, __pyx_L1_error)
       }
-      __pyx_v_varRes = (__pyx_v_varRes + powf(((*((float *) ( /* dim=0 */ (__pyx_v_vecFunc_view.data + __pyx_t_33 * __pyx_v_vecFunc_view.strides[0]) ))) - __pyx_v_varXhat), 2.0));
+      __pyx_v_varRes = (__pyx_v_varRes + powf(((*((float *) ( /* dim=0 */ (__pyx_v_vecFunc_view.data + __pyx_t_34 * __pyx_v_vecFunc_view.strides[0]) ))) - __pyx_v_varXhat), 2.0));
     }
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":169
+    /* "hrf_opt/find_hrf_utils_cy_two.pyx":180
  *             varRes += (vecFunc_view[idxVol] - varXhat) ** 2
  * 
  *         vecRes_view[idxMdl] = varRes             # <<<<<<<<<<<<<<
  *         vecPe_view[idxMdl, 0] = varSlope1
  *         vecPe_view[idxMdl, 1] = varSlope2
  */
-    __pyx_t_34 = __pyx_v_idxMdl;
+    __pyx_t_35 = __pyx_v_idxMdl;
     __pyx_t_8 = -1;
-    if (unlikely(__pyx_t_34 >= (size_t)__pyx_v_vecRes_view.shape[0])) __pyx_t_8 = 0;
+    if (unlikely(__pyx_t_35 >= (size_t)__pyx_v_vecRes_view.shape[0])) __pyx_t_8 = 0;
     if (unlikely(__pyx_t_8 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_8);
-      __PYX_ERR(0, 169, __pyx_L1_error)
+      __PYX_ERR(0, 180, __pyx_L1_error)
     }
-    *((float *) ( /* dim=0 */ (__pyx_v_vecRes_view.data + __pyx_t_34 * __pyx_v_vecRes_view.strides[0]) )) = __pyx_v_varRes;
+    *((float *) ( /* dim=0 */ (__pyx_v_vecRes_view.data + __pyx_t_35 * __pyx_v_vecRes_view.strides[0]) )) = __pyx_v_varRes;
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":170
+    /* "hrf_opt/find_hrf_utils_cy_two.pyx":181
  * 
  *         vecRes_view[idxMdl] = varRes
  *         vecPe_view[idxMdl, 0] = varSlope1             # <<<<<<<<<<<<<<
  *         vecPe_view[idxMdl, 1] = varSlope2
  * 
  */
-    __pyx_t_35 = __pyx_v_idxMdl;
-    __pyx_t_36 = 0;
+    __pyx_t_36 = __pyx_v_idxMdl;
+    __pyx_t_37 = 0;
     __pyx_t_8 = -1;
-    if (unlikely(__pyx_t_35 >= (size_t)__pyx_v_vecPe_view.shape[0])) __pyx_t_8 = 0;
-    if (__pyx_t_36 < 0) {
-      __pyx_t_36 += __pyx_v_vecPe_view.shape[1];
-      if (unlikely(__pyx_t_36 < 0)) __pyx_t_8 = 1;
-    } else if (unlikely(__pyx_t_36 >= __pyx_v_vecPe_view.shape[1])) __pyx_t_8 = 1;
+    if (unlikely(__pyx_t_36 >= (size_t)__pyx_v_vecPe_view.shape[0])) __pyx_t_8 = 0;
+    if (__pyx_t_37 < 0) {
+      __pyx_t_37 += __pyx_v_vecPe_view.shape[1];
+      if (unlikely(__pyx_t_37 < 0)) __pyx_t_8 = 1;
+    } else if (unlikely(__pyx_t_37 >= __pyx_v_vecPe_view.shape[1])) __pyx_t_8 = 1;
     if (unlikely(__pyx_t_8 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_8);
-      __PYX_ERR(0, 170, __pyx_L1_error)
+      __PYX_ERR(0, 181, __pyx_L1_error)
     }
-    *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_vecPe_view.data + __pyx_t_35 * __pyx_v_vecPe_view.strides[0]) ) + __pyx_t_36 * __pyx_v_vecPe_view.strides[1]) )) = __pyx_v_varSlope1;
+    *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_vecPe_view.data + __pyx_t_36 * __pyx_v_vecPe_view.strides[0]) ) + __pyx_t_37 * __pyx_v_vecPe_view.strides[1]) )) = __pyx_v_varSlope1;
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":171
+    /* "hrf_opt/find_hrf_utils_cy_two.pyx":182
  *         vecRes_view[idxMdl] = varRes
  *         vecPe_view[idxMdl, 0] = varSlope1
  *         vecPe_view[idxMdl, 1] = varSlope2             # <<<<<<<<<<<<<<
  * 
  *     # Return memory view:
  */
-    __pyx_t_37 = __pyx_v_idxMdl;
-    __pyx_t_38 = 1;
+    __pyx_t_38 = __pyx_v_idxMdl;
+    __pyx_t_39 = 1;
     __pyx_t_8 = -1;
-    if (unlikely(__pyx_t_37 >= (size_t)__pyx_v_vecPe_view.shape[0])) __pyx_t_8 = 0;
-    if (__pyx_t_38 < 0) {
-      __pyx_t_38 += __pyx_v_vecPe_view.shape[1];
-      if (unlikely(__pyx_t_38 < 0)) __pyx_t_8 = 1;
-    } else if (unlikely(__pyx_t_38 >= __pyx_v_vecPe_view.shape[1])) __pyx_t_8 = 1;
+    if (unlikely(__pyx_t_38 >= (size_t)__pyx_v_vecPe_view.shape[0])) __pyx_t_8 = 0;
+    if (__pyx_t_39 < 0) {
+      __pyx_t_39 += __pyx_v_vecPe_view.shape[1];
+      if (unlikely(__pyx_t_39 < 0)) __pyx_t_8 = 1;
+    } else if (unlikely(__pyx_t_39 >= __pyx_v_vecPe_view.shape[1])) __pyx_t_8 = 1;
     if (unlikely(__pyx_t_8 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_8);
-      __PYX_ERR(0, 171, __pyx_L1_error)
+      __PYX_ERR(0, 182, __pyx_L1_error)
     }
-    *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_vecPe_view.data + __pyx_t_37 * __pyx_v_vecPe_view.strides[0]) ) + __pyx_t_38 * __pyx_v_vecPe_view.strides[1]) )) = __pyx_v_varSlope2;
+    *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_vecPe_view.data + __pyx_t_38 * __pyx_v_vecPe_view.strides[0]) ) + __pyx_t_39 * __pyx_v_vecPe_view.strides[1]) )) = __pyx_v_varSlope2;
   }
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":174
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":185
  * 
  *     # Return memory view:
  *     return vecRes_view, vecPe_view             # <<<<<<<<<<<<<<
  * # *****************************************************************************
  * 
  */
-  __pyx_t_39.f0 = __pyx_v_vecRes_view;
-  __pyx_t_39.f1 = __pyx_v_vecPe_view;
-  __pyx_r = __pyx_t_39;
+  __pyx_t_40.f0 = __pyx_v_vecRes_view;
+  __pyx_t_40.f1 = __pyx_v_vecPe_view;
+  __pyx_r = __pyx_t_40;
   goto __pyx_L0;
 
   /* "hrf_opt/find_hrf_utils_cy_two.pyx":118
@@ -3582,7 +3644,7 @@ static __pyx_ctuple___dunderPyx_memviewslice__and___dunderPyx_memviewslice __pyx
   return __pyx_r;
 }
 
-/* "hrf_opt/find_hrf_utils_cy_two.pyx":180
+/* "hrf_opt/find_hrf_utils_cy_two.pyx":191
  * # *** Main function least squares solution, with cross-validation, 2 predictors
  * 
  * cpdef np.ndarray[np.float32_t, ndim=2] cy_lst_sq_xval_two(             # <<<<<<<<<<<<<<
@@ -3651,26 +3713,26 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
   __pyx_pybuffernd_aryIdxTst.rcbuffer = &__pyx_pybuffer_aryIdxTst;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryMdlRsp, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryMdlRsp, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_aryMdlRsp.diminfo[0].strides = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryMdlRsp.diminfo[0].shape = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryMdlRsp.diminfo[1].strides = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryMdlRsp.diminfo[1].shape = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_aryMdlRsp.diminfo[2].strides = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_aryMdlRsp.diminfo[2].shape = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vecFunc.rcbuffer->pybuffer, (PyObject*)__pyx_v_vecFunc, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vecFunc.rcbuffer->pybuffer, (PyObject*)__pyx_v_vecFunc, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_vecFunc.diminfo[0].strides = __pyx_pybuffernd_vecFunc.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_vecFunc.diminfo[0].shape = __pyx_pybuffernd_vecFunc.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTrn, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTrn, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_aryIdxTrn.diminfo[0].strides = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryIdxTrn.diminfo[0].shape = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryIdxTrn.diminfo[1].strides = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryIdxTrn.diminfo[1].shape = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTst, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTst, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_aryIdxTst.diminfo[0].strides = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryIdxTst.diminfo[0].shape = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryIdxTst.diminfo[1].strides = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryIdxTst.diminfo[1].shape = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.shape[1];
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":219
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":230
  *     """
  *     cdef:
  *         float[:, :, :] aryMdlRsp_view = aryMdlRsp             # <<<<<<<<<<<<<<
@@ -3678,12 +3740,12 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  *         int [:, :] aryIdxTrn_view = aryIdxTrn
  */
   __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dsdsds_float(((PyObject *)__pyx_v_aryMdlRsp));
-  if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 219, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 230, __pyx_L1_error)
   __pyx_v_aryMdlRsp_view = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":220
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":231
  *     cdef:
  *         float[:, :, :] aryMdlRsp_view = aryMdlRsp
  *         float[:] vecFunc_view = vecFunc             # <<<<<<<<<<<<<<
@@ -3691,12 +3753,12 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  *         int [:, :] aryIdxTst_view = aryIdxTst
  */
   __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_vecFunc));
-  if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 220, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 231, __pyx_L1_error)
   __pyx_v_vecFunc_view = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":221
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":232
  *         float[:, :, :] aryMdlRsp_view = aryMdlRsp
  *         float[:] vecFunc_view = vecFunc
  *         int [:, :] aryIdxTrn_view = aryIdxTrn             # <<<<<<<<<<<<<<
@@ -3704,12 +3766,12 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  *         unsigned long varNumMdls, idxMdl
  */
   __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dsds_int(((PyObject *)__pyx_v_aryIdxTrn));
-  if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 221, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 232, __pyx_L1_error)
   __pyx_v_aryIdxTrn_view = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":222
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":233
  *         float[:] vecFunc_view = vecFunc
  *         int [:, :] aryIdxTrn_view = aryIdxTrn
  *         int [:, :] aryIdxTst_view = aryIdxTst             # <<<<<<<<<<<<<<
@@ -3717,12 +3779,12 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  *         unsigned int idxVol, idxXval, varNumXval, varNumVolTrn, varNumVolTst
  */
   __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dsds_int(((PyObject *)__pyx_v_aryIdxTst));
-  if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 233, __pyx_L1_error)
   __pyx_v_aryIdxTst_view = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":228
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":239
  * 
  *     # Number of models in the model array:
  *     varNumMdls = int(aryMdlRsp.shape[2])             # <<<<<<<<<<<<<<
@@ -3731,7 +3793,7 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  */
   __pyx_v_varNumMdls = ((unsigned long)(__pyx_v_aryMdlRsp->dimensions[2]));
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":230
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":241
  *     varNumMdls = int(aryMdlRsp.shape[2])
  *     # Number of cross-validations:
  *     varNumXval = int(aryIdxTrn.shape[1])             # <<<<<<<<<<<<<<
@@ -3740,7 +3802,7 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  */
   __pyx_v_varNumXval = ((unsigned int)(__pyx_v_aryIdxTrn->dimensions[1]));
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":232
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":243
  *     varNumXval = int(aryIdxTrn.shape[1])
  *     # Number of training volumes
  *     varNumVolTrn = int(aryIdxTrn.shape[0])             # <<<<<<<<<<<<<<
@@ -3749,7 +3811,7 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  */
   __pyx_v_varNumVolTrn = ((unsigned int)(__pyx_v_aryIdxTrn->dimensions[0]));
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":234
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":245
  *     varNumVolTrn = int(aryIdxTrn.shape[0])
  *     # Number of testing volumes
  *     varNumVolTst = int(aryIdxTst.shape[0])             # <<<<<<<<<<<<<<
@@ -3758,39 +3820,39 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  */
   __pyx_v_varNumVolTst = ((unsigned int)(__pyx_v_aryIdxTst->dimensions[0]));
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":238
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":249
  *     # Define 2D array for residuals (here crossvalidation error) of least
  *     # squares solution), initialized with all zeros here:
  *     cdef np.ndarray[np.float32_t, ndim=2] aryResXval = np.zeros((varNumMdls,             # <<<<<<<<<<<<<<
  *                                                                  varNumXval),
  *                                                                 dtype=np.float32)
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_unsigned_long(__pyx_v_varNumMdls); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_unsigned_long(__pyx_v_varNumMdls); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":239
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":250
  *     # squares solution), initialized with all zeros here:
  *     cdef np.ndarray[np.float32_t, ndim=2] aryResXval = np.zeros((varNumMdls,
  *                                                                  varNumXval),             # <<<<<<<<<<<<<<
  *                                                                 dtype=np.float32)
  * 
  */
-  __pyx_t_6 = __Pyx_PyInt_From_unsigned_int(__pyx_v_varNumXval); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 239, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_From_unsigned_int(__pyx_v_varNumXval); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":238
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":249
  *     # Define 2D array for residuals (here crossvalidation error) of least
  *     # squares solution), initialized with all zeros here:
  *     cdef np.ndarray[np.float32_t, ndim=2] aryResXval = np.zeros((varNumMdls,             # <<<<<<<<<<<<<<
  *                                                                  varNumXval),
  *                                                                 dtype=np.float32)
  */
-  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4);
@@ -3798,48 +3860,48 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
   PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_6);
   __pyx_t_4 = 0;
   __pyx_t_6 = 0;
-  __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_7);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":240
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":251
  *     cdef np.ndarray[np.float32_t, ndim=2] aryResXval = np.zeros((varNumMdls,
  *                                                                  varNumXval),
  *                                                                 dtype=np.float32)             # <<<<<<<<<<<<<<
  * 
  *     # Memory view on array for residuals (here crossvalidation error)
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 240, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 240, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 240, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":238
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":249
  *     # Define 2D array for residuals (here crossvalidation error) of least
  *     # squares solution), initialized with all zeros here:
  *     cdef np.ndarray[np.float32_t, ndim=2] aryResXval = np.zeros((varNumMdls,             # <<<<<<<<<<<<<<
  *                                                                  varNumXval),
  *                                                                 dtype=np.float32)
  */
-  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (!(likely(((__pyx_t_8) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_8, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 238, __pyx_L1_error)
+  if (!(likely(((__pyx_t_8) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_8, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 249, __pyx_L1_error)
   __pyx_t_9 = ((PyArrayObject *)__pyx_t_8);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryResXval.rcbuffer->pybuffer, (PyObject*)__pyx_t_9, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_aryResXval = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 238, __pyx_L1_error)
+      __PYX_ERR(0, 249, __pyx_L1_error)
     } else {__pyx_pybuffernd_aryResXval.diminfo[0].strides = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryResXval.diminfo[0].shape = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryResXval.diminfo[1].strides = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryResXval.diminfo[1].shape = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -3847,7 +3909,7 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
   __pyx_v_aryResXval = ((PyArrayObject *)__pyx_t_8);
   __pyx_t_8 = 0;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":243
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":254
  * 
  *     # Memory view on array for residuals (here crossvalidation error)
  *     cdef float[:, :] aryResXval_view = aryResXval             # <<<<<<<<<<<<<<
@@ -3855,37 +3917,37 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
  *     # Call optimised cdef function for calculation of residuals:
  */
   __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_aryResXval));
-  if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 243, __pyx_L1_error)
-  __pyx_v_aryResXval_view = __pyx_t_10;
-  __pyx_t_10.memview = NULL;
-  __pyx_t_10.data = NULL;
-
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":246
- * 
- *     # Call optimised cdef function for calculation of residuals:
- *     aryResXval_view = func_cy_res_xval(aryMdlRsp_view,             # <<<<<<<<<<<<<<
- *                                        vecFunc_view,
- *                                        aryIdxTrn_view,
- */
-  __pyx_t_10 = __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_xval(__pyx_v_aryMdlRsp_view, __pyx_v_vecFunc_view, __pyx_v_aryIdxTrn_view, __pyx_v_aryIdxTst_view, __pyx_v_aryResXval_view, __pyx_v_varNumXval, __pyx_v_varNumMdls, __pyx_v_varNumVolTrn, __pyx_v_varNumVolTst); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 246, __pyx_L1_error)
-  __PYX_XDEC_MEMVIEW(&__pyx_v_aryResXval_view, 1);
+  if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 254, __pyx_L1_error)
   __pyx_v_aryResXval_view = __pyx_t_10;
   __pyx_t_10.memview = NULL;
   __pyx_t_10.data = NULL;
 
   /* "hrf_opt/find_hrf_utils_cy_two.pyx":257
  * 
+ *     # Call optimised cdef function for calculation of residuals:
+ *     aryResXval_view = func_cy_res_xval(aryMdlRsp_view,             # <<<<<<<<<<<<<<
+ *                                        vecFunc_view,
+ *                                        aryIdxTrn_view,
+ */
+  __pyx_t_10 = __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_xval(__pyx_v_aryMdlRsp_view, __pyx_v_vecFunc_view, __pyx_v_aryIdxTrn_view, __pyx_v_aryIdxTst_view, __pyx_v_aryResXval_view, __pyx_v_varNumXval, __pyx_v_varNumMdls, __pyx_v_varNumVolTrn, __pyx_v_varNumVolTst); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __PYX_XDEC_MEMVIEW(&__pyx_v_aryResXval_view, 1);
+  __pyx_v_aryResXval_view = __pyx_t_10;
+  __pyx_t_10.memview = NULL;
+  __pyx_t_10.data = NULL;
+
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":268
+ * 
  *     # Convert memory view to numpy array before returning it:
  *     aryResXval = np.asarray(aryResXval_view)             # <<<<<<<<<<<<<<
  * 
  *     return aryResXval
  */
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __pyx_memoryview_fromslice(__pyx_v_aryResXval_view, 2, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_7 = __pyx_memoryview_fromslice(__pyx_v_aryResXval_view, 2, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -3898,14 +3960,14 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 257, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 268, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_8);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_7};
-      __pyx_t_8 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 257, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -3914,26 +3976,26 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_7};
-      __pyx_t_8 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 257, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 257, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5); __pyx_t_5 = NULL;
       __Pyx_GIVEREF(__pyx_t_7);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_t_7);
       __pyx_t_7 = 0;
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_4, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 257, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_4, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (!(likely(((__pyx_t_8) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_8, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 257, __pyx_L1_error)
+  if (!(likely(((__pyx_t_8) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_8, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 268, __pyx_L1_error)
   __pyx_t_9 = ((PyArrayObject *)__pyx_t_8);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -3950,13 +4012,13 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
       __pyx_t_12 = __pyx_t_13 = __pyx_t_14 = 0;
     }
     __pyx_pybuffernd_aryResXval.diminfo[0].strides = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryResXval.diminfo[0].shape = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryResXval.diminfo[1].strides = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryResXval.diminfo[1].shape = __pyx_pybuffernd_aryResXval.rcbuffer->pybuffer.shape[1];
-    if (unlikely(__pyx_t_11 < 0)) __PYX_ERR(0, 257, __pyx_L1_error)
+    if (unlikely(__pyx_t_11 < 0)) __PYX_ERR(0, 268, __pyx_L1_error)
   }
   __pyx_t_9 = 0;
   __Pyx_DECREF_SET(__pyx_v_aryResXval, ((PyArrayObject *)__pyx_t_8));
   __pyx_t_8 = 0;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":259
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":270
  *     aryResXval = np.asarray(aryResXval_view)
  * 
  *     return aryResXval             # <<<<<<<<<<<<<<
@@ -3968,7 +4030,7 @@ static PyArrayObject *__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_tw
   __pyx_r = ((PyArrayObject *)__pyx_v_aryResXval);
   goto __pyx_L0;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":180
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":191
  * # *** Main function least squares solution, with cross-validation, 2 predictors
  * 
  * cpdef np.ndarray[np.float32_t, ndim=2] cy_lst_sq_xval_two(             # <<<<<<<<<<<<<<
@@ -4056,23 +4118,23 @@ static PyObject *__pyx_pw_7hrf_opt_21find_hrf_utils_cy_two_3cy_lst_sq_xval_two(P
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_vecFunc)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, 1); __PYX_ERR(0, 180, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, 1); __PYX_ERR(0, 191, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_aryIdxTrn)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, 2); __PYX_ERR(0, 180, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, 2); __PYX_ERR(0, 191, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_aryIdxTst)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, 3); __PYX_ERR(0, 180, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, 3); __PYX_ERR(0, 191, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "cy_lst_sq_xval_two") < 0)) __PYX_ERR(0, 180, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "cy_lst_sq_xval_two") < 0)) __PYX_ERR(0, 191, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -4089,16 +4151,16 @@ static PyObject *__pyx_pw_7hrf_opt_21find_hrf_utils_cy_two_3cy_lst_sq_xval_two(P
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 180, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("cy_lst_sq_xval_two", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 191, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("hrf_opt.find_hrf_utils_cy_two.cy_lst_sq_xval_two", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_aryMdlRsp), __pyx_ptype_5numpy_ndarray, 1, "aryMdlRsp", 0))) __PYX_ERR(0, 181, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vecFunc), __pyx_ptype_5numpy_ndarray, 1, "vecFunc", 0))) __PYX_ERR(0, 182, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_aryIdxTrn), __pyx_ptype_5numpy_ndarray, 1, "aryIdxTrn", 0))) __PYX_ERR(0, 183, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_aryIdxTst), __pyx_ptype_5numpy_ndarray, 1, "aryIdxTst", 0))) __PYX_ERR(0, 184, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_aryMdlRsp), __pyx_ptype_5numpy_ndarray, 1, "aryMdlRsp", 0))) __PYX_ERR(0, 192, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vecFunc), __pyx_ptype_5numpy_ndarray, 1, "vecFunc", 0))) __PYX_ERR(0, 193, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_aryIdxTrn), __pyx_ptype_5numpy_ndarray, 1, "aryIdxTrn", 0))) __PYX_ERR(0, 194, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_aryIdxTst), __pyx_ptype_5numpy_ndarray, 1, "aryIdxTst", 0))) __PYX_ERR(0, 195, __pyx_L1_error)
   __pyx_r = __pyx_pf_7hrf_opt_21find_hrf_utils_cy_two_2cy_lst_sq_xval_two(__pyx_self, __pyx_v_aryMdlRsp, __pyx_v_vecFunc, __pyx_v_aryIdxTrn, __pyx_v_aryIdxTst);
 
   /* function exit code */
@@ -4141,26 +4203,26 @@ static PyObject *__pyx_pf_7hrf_opt_21find_hrf_utils_cy_two_2cy_lst_sq_xval_two(C
   __pyx_pybuffernd_aryIdxTst.rcbuffer = &__pyx_pybuffer_aryIdxTst;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryMdlRsp, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryMdlRsp, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_aryMdlRsp.diminfo[0].strides = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryMdlRsp.diminfo[0].shape = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryMdlRsp.diminfo[1].strides = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryMdlRsp.diminfo[1].shape = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_aryMdlRsp.diminfo[2].strides = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_aryMdlRsp.diminfo[2].shape = __pyx_pybuffernd_aryMdlRsp.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vecFunc.rcbuffer->pybuffer, (PyObject*)__pyx_v_vecFunc, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vecFunc.rcbuffer->pybuffer, (PyObject*)__pyx_v_vecFunc, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_vecFunc.diminfo[0].strides = __pyx_pybuffernd_vecFunc.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_vecFunc.diminfo[0].shape = __pyx_pybuffernd_vecFunc.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTrn, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTrn, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_aryIdxTrn.diminfo[0].strides = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryIdxTrn.diminfo[0].shape = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryIdxTrn.diminfo[1].strides = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryIdxTrn.diminfo[1].shape = __pyx_pybuffernd_aryIdxTrn.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTst, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer, (PyObject*)__pyx_v_aryIdxTst, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 191, __pyx_L1_error)
   }
   __pyx_pybuffernd_aryIdxTst.diminfo[0].strides = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aryIdxTst.diminfo[0].shape = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_aryIdxTst.diminfo[1].strides = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_aryIdxTst.diminfo[1].shape = __pyx_pybuffernd_aryIdxTst.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_two(__pyx_v_aryMdlRsp, __pyx_v_vecFunc, __pyx_v_aryIdxTrn, __pyx_v_aryIdxTst, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_7hrf_opt_21find_hrf_utils_cy_two_cy_lst_sq_xval_two(__pyx_v_aryMdlRsp, __pyx_v_vecFunc, __pyx_v_aryIdxTrn, __pyx_v_aryIdxTst, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4192,7 +4254,7 @@ static PyObject *__pyx_pf_7hrf_opt_21find_hrf_utils_cy_two_2cy_lst_sq_xval_two(C
   return __pyx_r;
 }
 
-/* "hrf_opt/find_hrf_utils_cy_two.pyx":266
+/* "hrf_opt/find_hrf_utils_cy_two.pyx":277
  * # *** Function fast calculation residuals, with cross-validation, 1 predictor
  * 
  * cdef float[:, :] func_cy_res_xval(float[:, :, :] aryMdlRsp_view,             # <<<<<<<<<<<<<<
@@ -4246,21 +4308,22 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
   size_t __pyx_t_27;
   Py_ssize_t __pyx_t_28;
   size_t __pyx_t_29;
-  float __pyx_t_30;
-  size_t __pyx_t_31;
+  int __pyx_t_30;
+  float __pyx_t_31;
   size_t __pyx_t_32;
   size_t __pyx_t_33;
-  Py_ssize_t __pyx_t_34;
-  size_t __pyx_t_35;
+  size_t __pyx_t_34;
+  Py_ssize_t __pyx_t_35;
   size_t __pyx_t_36;
-  Py_ssize_t __pyx_t_37;
-  size_t __pyx_t_38;
+  size_t __pyx_t_37;
+  Py_ssize_t __pyx_t_38;
   size_t __pyx_t_39;
   size_t __pyx_t_40;
   size_t __pyx_t_41;
+  size_t __pyx_t_42;
   __Pyx_RefNannySetupContext("func_cy_res_xval", 0);
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":285
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":296
  * 
  *     # Loop through cross-validations
  *     for idxXval in range(varNumXval):             # <<<<<<<<<<<<<<
@@ -4271,7 +4334,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_idxXval = __pyx_t_2;
 
-    /* "hrf_opt/find_hrf_utils_cy_two.pyx":288
+    /* "hrf_opt/find_hrf_utils_cy_two.pyx":299
  * 
  *         # Loop through models:
  *         for idxMdl in range(varNumMdls):             # <<<<<<<<<<<<<<
@@ -4282,7 +4345,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_v_idxMdl = __pyx_t_4;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":291
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":302
  * 
  *             # Covariance and residuals of current model:
  *             varVarX1 = 0             # <<<<<<<<<<<<<<
@@ -4291,7 +4354,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
       __pyx_v_varVarX1 = 0.0;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":292
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":303
  *             # Covariance and residuals of current model:
  *             varVarX1 = 0
  *             varVarX2 = 0             # <<<<<<<<<<<<<<
@@ -4300,7 +4363,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
       __pyx_v_varVarX2 = 0.0;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":293
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":304
  *             varVarX1 = 0
  *             varVarX2 = 0
  *             varVarX1X2 = 0             # <<<<<<<<<<<<<<
@@ -4309,7 +4372,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
       __pyx_v_varVarX1X2 = 0.0;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":294
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":305
  *             varVarX2 = 0
  *             varVarX1X2 = 0
  *             varCovX1y = 0             # <<<<<<<<<<<<<<
@@ -4318,7 +4381,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
       __pyx_v_varCovX1y = 0.0;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":295
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":306
  *             varVarX1X2 = 0
  *             varCovX1y = 0
  *             varCovX2y = 0             # <<<<<<<<<<<<<<
@@ -4327,7 +4390,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
       __pyx_v_varCovX2y = 0.0;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":296
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":307
  *             varCovX1y = 0
  *             varCovX2y = 0
  *             varRes = 0             # <<<<<<<<<<<<<<
@@ -4336,7 +4399,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
       __pyx_v_varRes = 0.0;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":302
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":313
  *             # as well as the covariance between the model and the current voxel
  *             # time course:
  *             for idxItr in range(varNumVolTrn):             # <<<<<<<<<<<<<<
@@ -4347,7 +4410,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
       for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
         __pyx_v_idxItr = __pyx_t_6;
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":304
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":315
  *             for idxItr in range(varNumVolTrn):
  *                 # get the training volume
  *                 idxVol = aryIdxTrn_view[idxItr, idxXval]             # <<<<<<<<<<<<<<
@@ -4361,11 +4424,11 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_8 >= (size_t)__pyx_v_aryIdxTrn_view.shape[1])) __pyx_t_9 = 1;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 304, __pyx_L1_error)
+          __PYX_ERR(0, 315, __pyx_L1_error)
         }
         __pyx_v_idxVol = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryIdxTrn_view.data + __pyx_t_7 * __pyx_v_aryIdxTrn_view.strides[0]) ) + __pyx_t_8 * __pyx_v_aryIdxTrn_view.strides[1]) )));
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":306
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":317
  *                 idxVol = aryIdxTrn_view[idxItr, idxXval]
  * 
  *                 varVarX1 += aryMdlRsp_view[idxVol, 0, idxMdl] ** 2             # <<<<<<<<<<<<<<
@@ -4384,11 +4447,11 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_12 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 306, __pyx_L1_error)
+          __PYX_ERR(0, 317, __pyx_L1_error)
         }
         __pyx_v_varVarX1 = (__pyx_v_varVarX1 + powf((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_10 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_11 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_12 * __pyx_v_aryMdlRsp_view.strides[2]) ))), 2.0));
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":307
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":318
  * 
  *                 varVarX1 += aryMdlRsp_view[idxVol, 0, idxMdl] ** 2
  *                 varVarX2 += aryMdlRsp_view[idxVol, 1, idxMdl] ** 2             # <<<<<<<<<<<<<<
@@ -4407,11 +4470,11 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_15 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 307, __pyx_L1_error)
+          __PYX_ERR(0, 318, __pyx_L1_error)
         }
         __pyx_v_varVarX2 = (__pyx_v_varVarX2 + powf((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_13 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_14 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_15 * __pyx_v_aryMdlRsp_view.strides[2]) ))), 2.0));
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":308
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":319
  *                 varVarX1 += aryMdlRsp_view[idxVol, 0, idxMdl] ** 2
  *                 varVarX2 += aryMdlRsp_view[idxVol, 1, idxMdl] ** 2
  *                 varVarX1X2 += (aryMdlRsp_view[idxVol, 0, idxMdl] *             # <<<<<<<<<<<<<<
@@ -4430,10 +4493,10 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_18 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 308, __pyx_L1_error)
+          __PYX_ERR(0, 319, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":309
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":320
  *                 varVarX2 += aryMdlRsp_view[idxVol, 1, idxMdl] ** 2
  *                 varVarX1X2 += (aryMdlRsp_view[idxVol, 0, idxMdl] *
  *                                aryMdlRsp_view[idxVol, 1, idxMdl])             # <<<<<<<<<<<<<<
@@ -4452,10 +4515,10 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_21 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 309, __pyx_L1_error)
+          __PYX_ERR(0, 320, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":308
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":319
  *                 varVarX1 += aryMdlRsp_view[idxVol, 0, idxMdl] ** 2
  *                 varVarX2 += aryMdlRsp_view[idxVol, 1, idxMdl] ** 2
  *                 varVarX1X2 += (aryMdlRsp_view[idxVol, 0, idxMdl] *             # <<<<<<<<<<<<<<
@@ -4464,7 +4527,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
         __pyx_v_varVarX1X2 = (__pyx_v_varVarX1X2 + ((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_16 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_17 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_18 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * (*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_19 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_20 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_21 * __pyx_v_aryMdlRsp_view.strides[2]) )))));
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":310
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":321
  *                 varVarX1X2 += (aryMdlRsp_view[idxVol, 0, idxMdl] *
  *                                aryMdlRsp_view[idxVol, 1, idxMdl])
  *                 varCovX1y += (vecFunc_view[idxVol]             # <<<<<<<<<<<<<<
@@ -4476,10 +4539,10 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_22 >= (size_t)__pyx_v_vecFunc_view.shape[0])) __pyx_t_9 = 0;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 310, __pyx_L1_error)
+          __PYX_ERR(0, 321, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":311
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":322
  *                                aryMdlRsp_view[idxVol, 1, idxMdl])
  *                 varCovX1y += (vecFunc_view[idxVol]
  *                               * aryMdlRsp_view[idxVol, 0, idxMdl])             # <<<<<<<<<<<<<<
@@ -4498,10 +4561,10 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_25 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 311, __pyx_L1_error)
+          __PYX_ERR(0, 322, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":310
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":321
  *                 varVarX1X2 += (aryMdlRsp_view[idxVol, 0, idxMdl] *
  *                                aryMdlRsp_view[idxVol, 1, idxMdl])
  *                 varCovX1y += (vecFunc_view[idxVol]             # <<<<<<<<<<<<<<
@@ -4510,7 +4573,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
  */
         __pyx_v_varCovX1y = (__pyx_v_varCovX1y + ((*((float *) ( /* dim=0 */ (__pyx_v_vecFunc_view.data + __pyx_t_22 * __pyx_v_vecFunc_view.strides[0]) ))) * (*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_23 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_24 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_25 * __pyx_v_aryMdlRsp_view.strides[2]) )))));
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":312
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":323
  *                 varCovX1y += (vecFunc_view[idxVol]
  *                               * aryMdlRsp_view[idxVol, 0, idxMdl])
  *                 varCovX2y += (vecFunc_view[idxVol]             # <<<<<<<<<<<<<<
@@ -4522,15 +4585,15 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_26 >= (size_t)__pyx_v_vecFunc_view.shape[0])) __pyx_t_9 = 0;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 312, __pyx_L1_error)
+          __PYX_ERR(0, 323, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":313
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":324
  *                               * aryMdlRsp_view[idxVol, 0, idxMdl])
  *                 varCovX2y += (vecFunc_view[idxVol]
  *                               * aryMdlRsp_view[idxVol, 1, idxMdl])             # <<<<<<<<<<<<<<
  * 
- *             # calculate denominator
+ *             # Check if variation is zero
  */
         __pyx_t_27 = __pyx_v_idxVol;
         __pyx_t_28 = 1;
@@ -4544,10 +4607,10 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         if (unlikely(__pyx_t_29 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 313, __pyx_L1_error)
+          __PYX_ERR(0, 324, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":312
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":323
  *                 varCovX1y += (vecFunc_view[idxVol]
  *                               * aryMdlRsp_view[idxVol, 0, idxMdl])
  *                 varCovX2y += (vecFunc_view[idxVol]             # <<<<<<<<<<<<<<
@@ -4557,60 +4620,105 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
         __pyx_v_varCovX2y = (__pyx_v_varCovX2y + ((*((float *) ( /* dim=0 */ (__pyx_v_vecFunc_view.data + __pyx_t_26 * __pyx_v_vecFunc_view.strides[0]) ))) * (*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_27 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_28 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_29 * __pyx_v_aryMdlRsp_view.strides[2]) )))));
       }
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":316
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":327
  * 
- *             # calculate denominator
- *             varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2             # <<<<<<<<<<<<<<
- *             # Obtain the slope of the regression of the model on the data:
- *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+ *             # Check if variation is zero
+ *             if varVarX2 == 0.0:             # <<<<<<<<<<<<<<
+ *                 # If the variation in predictor 2 is zero, then obtain only the
+ *                 # slope of regression of predictor 1 on the data:
  */
-      __pyx_v_varDen = ((__pyx_v_varVarX1 * __pyx_v_varVarX2) - powf(__pyx_v_varVarX1X2, 2.0));
+      __pyx_t_30 = ((__pyx_v_varVarX2 == 0.0) != 0);
+      if (__pyx_t_30) {
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":318
- *             varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
- *             # Obtain the slope of the regression of the model on the data:
- *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /             # <<<<<<<<<<<<<<
- *                          varDen)
- *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":330
+ *                 # If the variation in predictor 2 is zero, then obtain only the
+ *                 # slope of regression of predictor 1 on the data:
+ *                 varSlope1 = varCovX1y / varVarX1             # <<<<<<<<<<<<<<
+ *                 # Set the slope for predictor 2 to zero:
+ *                 varSlope2 = 0.0
  */
-      __pyx_t_30 = ((__pyx_v_varVarX2 * __pyx_v_varCovX1y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX2y));
+        if (unlikely(__pyx_v_varVarX1 == 0)) {
+          PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+          __PYX_ERR(0, 330, __pyx_L1_error)
+        }
+        __pyx_v_varSlope1 = (__pyx_v_varCovX1y / __pyx_v_varVarX1);
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":319
- *             # Obtain the slope of the regression of the model on the data:
- *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
- *                          varDen)             # <<<<<<<<<<<<<<
- *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
- *                          varDen)
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":332
+ *                 varSlope1 = varCovX1y / varVarX1
+ *                 # Set the slope for predictor 2 to zero:
+ *                 varSlope2 = 0.0             # <<<<<<<<<<<<<<
+ *             else:
+ *                 # Calculate denominator
  */
-      if (unlikely(__pyx_v_varDen == 0)) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 318, __pyx_L1_error)
+        __pyx_v_varSlope2 = 0.0;
+
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":327
+ * 
+ *             # Check if variation is zero
+ *             if varVarX2 == 0.0:             # <<<<<<<<<<<<<<
+ *                 # If the variation in predictor 2 is zero, then obtain only the
+ *                 # slope of regression of predictor 1 on the data:
+ */
+        goto __pyx_L9;
       }
-      __pyx_v_varSlope1 = (__pyx_t_30 / __pyx_v_varDen);
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":320
- *             varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
- *                          varDen)
- *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /             # <<<<<<<<<<<<<<
- *                          varDen)
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":335
+ *             else:
+ *                 # Calculate denominator
+ *                 varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2             # <<<<<<<<<<<<<<
+ *                 # Obtain the slope of the regression of the model on the data:
+ *                 varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+ */
+      /*else*/ {
+        __pyx_v_varDen = ((__pyx_v_varVarX1 * __pyx_v_varVarX2) - powf(__pyx_v_varVarX1X2, 2.0));
+
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":337
+ *                 varDen = varVarX1 * varVarX2 - varVarX1X2 ** 2
+ *                 # Obtain the slope of the regression of the model on the data:
+ *                 varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /             # <<<<<<<<<<<<<<
+ *                              varDen)
+ *                 varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+ */
+        __pyx_t_31 = ((__pyx_v_varVarX2 * __pyx_v_varCovX1y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX2y));
+
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":338
+ *                 # Obtain the slope of the regression of the model on the data:
+ *                 varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+ *                              varDen)             # <<<<<<<<<<<<<<
+ *                 varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+ *                              varDen)
+ */
+        if (unlikely(__pyx_v_varDen == 0)) {
+          PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+          __PYX_ERR(0, 337, __pyx_L1_error)
+        }
+        __pyx_v_varSlope1 = (__pyx_t_31 / __pyx_v_varDen);
+
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":339
+ *                 varSlope1 = ((varVarX2 * varCovX1y - varVarX1X2 * varCovX2y) /
+ *                              varDen)
+ *                 varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /             # <<<<<<<<<<<<<<
+ *                              varDen)
  * 
  */
-      __pyx_t_30 = ((__pyx_v_varVarX1 * __pyx_v_varCovX2y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX1y));
+        __pyx_t_31 = ((__pyx_v_varVarX1 * __pyx_v_varCovX2y) - (__pyx_v_varVarX1X2 * __pyx_v_varCovX1y));
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":321
- *                          varDen)
- *             varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
- *                          varDen)             # <<<<<<<<<<<<<<
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":340
+ *                              varDen)
+ *                 varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
+ *                              varDen)             # <<<<<<<<<<<<<<
  * 
  *             # Loop through test volumes and calculate the predicted time course
  */
-      if (unlikely(__pyx_v_varDen == 0)) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 320, __pyx_L1_error)
+        if (unlikely(__pyx_v_varDen == 0)) {
+          PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+          __PYX_ERR(0, 339, __pyx_L1_error)
+        }
+        __pyx_v_varSlope2 = (__pyx_t_31 / __pyx_v_varDen);
       }
-      __pyx_v_varSlope2 = (__pyx_t_30 / __pyx_v_varDen);
+      __pyx_L9:;
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":325
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":344
  *             # Loop through test volumes and calculate the predicted time course
  *             # value and the mismatch between prediction and actual voxel value
  *             for idxItr in range(varNumVolTst):             # <<<<<<<<<<<<<<
@@ -4621,115 +4729,115 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
       for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
         __pyx_v_idxItr = __pyx_t_6;
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":327
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":346
  *             for idxItr in range(varNumVolTst):
  *                 # get the test volume
  *                 idxVol = aryIdxTst_view[idxItr, idxXval]             # <<<<<<<<<<<<<<
  *                 # The predicted voxel time course value:
  *                 varXhat = (aryMdlRsp_view[idxVol, 0, idxMdl] * varSlope1 +
  */
-        __pyx_t_31 = __pyx_v_idxItr;
-        __pyx_t_32 = __pyx_v_idxXval;
+        __pyx_t_32 = __pyx_v_idxItr;
+        __pyx_t_33 = __pyx_v_idxXval;
         __pyx_t_9 = -1;
-        if (unlikely(__pyx_t_31 >= (size_t)__pyx_v_aryIdxTst_view.shape[0])) __pyx_t_9 = 0;
-        if (unlikely(__pyx_t_32 >= (size_t)__pyx_v_aryIdxTst_view.shape[1])) __pyx_t_9 = 1;
+        if (unlikely(__pyx_t_32 >= (size_t)__pyx_v_aryIdxTst_view.shape[0])) __pyx_t_9 = 0;
+        if (unlikely(__pyx_t_33 >= (size_t)__pyx_v_aryIdxTst_view.shape[1])) __pyx_t_9 = 1;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 327, __pyx_L1_error)
+          __PYX_ERR(0, 346, __pyx_L1_error)
         }
-        __pyx_v_idxVol = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryIdxTst_view.data + __pyx_t_31 * __pyx_v_aryIdxTst_view.strides[0]) ) + __pyx_t_32 * __pyx_v_aryIdxTst_view.strides[1]) )));
+        __pyx_v_idxVol = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryIdxTst_view.data + __pyx_t_32 * __pyx_v_aryIdxTst_view.strides[0]) ) + __pyx_t_33 * __pyx_v_aryIdxTst_view.strides[1]) )));
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":329
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":348
  *                 idxVol = aryIdxTst_view[idxItr, idxXval]
  *                 # The predicted voxel time course value:
  *                 varXhat = (aryMdlRsp_view[idxVol, 0, idxMdl] * varSlope1 +             # <<<<<<<<<<<<<<
  *                            aryMdlRsp_view[idxVol, 1, idxMdl] * varSlope2)
  *                 # Mismatch between prediction and actual voxel value
  */
-        __pyx_t_33 = __pyx_v_idxVol;
-        __pyx_t_34 = 0;
-        __pyx_t_35 = __pyx_v_idxMdl;
+        __pyx_t_34 = __pyx_v_idxVol;
+        __pyx_t_35 = 0;
+        __pyx_t_36 = __pyx_v_idxMdl;
         __pyx_t_9 = -1;
-        if (unlikely(__pyx_t_33 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_9 = 0;
-        if (__pyx_t_34 < 0) {
-          __pyx_t_34 += __pyx_v_aryMdlRsp_view.shape[1];
-          if (unlikely(__pyx_t_34 < 0)) __pyx_t_9 = 1;
-        } else if (unlikely(__pyx_t_34 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_9 = 1;
-        if (unlikely(__pyx_t_35 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
+        if (unlikely(__pyx_t_34 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_9 = 0;
+        if (__pyx_t_35 < 0) {
+          __pyx_t_35 += __pyx_v_aryMdlRsp_view.shape[1];
+          if (unlikely(__pyx_t_35 < 0)) __pyx_t_9 = 1;
+        } else if (unlikely(__pyx_t_35 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_9 = 1;
+        if (unlikely(__pyx_t_36 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 329, __pyx_L1_error)
+          __PYX_ERR(0, 348, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":330
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":349
  *                 # The predicted voxel time course value:
  *                 varXhat = (aryMdlRsp_view[idxVol, 0, idxMdl] * varSlope1 +
  *                            aryMdlRsp_view[idxVol, 1, idxMdl] * varSlope2)             # <<<<<<<<<<<<<<
  *                 # Mismatch between prediction and actual voxel value
  *                 # (variance):
  */
-        __pyx_t_36 = __pyx_v_idxVol;
-        __pyx_t_37 = 1;
-        __pyx_t_38 = __pyx_v_idxMdl;
+        __pyx_t_37 = __pyx_v_idxVol;
+        __pyx_t_38 = 1;
+        __pyx_t_39 = __pyx_v_idxMdl;
         __pyx_t_9 = -1;
-        if (unlikely(__pyx_t_36 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_9 = 0;
-        if (__pyx_t_37 < 0) {
-          __pyx_t_37 += __pyx_v_aryMdlRsp_view.shape[1];
-          if (unlikely(__pyx_t_37 < 0)) __pyx_t_9 = 1;
-        } else if (unlikely(__pyx_t_37 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_9 = 1;
-        if (unlikely(__pyx_t_38 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
+        if (unlikely(__pyx_t_37 >= (size_t)__pyx_v_aryMdlRsp_view.shape[0])) __pyx_t_9 = 0;
+        if (__pyx_t_38 < 0) {
+          __pyx_t_38 += __pyx_v_aryMdlRsp_view.shape[1];
+          if (unlikely(__pyx_t_38 < 0)) __pyx_t_9 = 1;
+        } else if (unlikely(__pyx_t_38 >= __pyx_v_aryMdlRsp_view.shape[1])) __pyx_t_9 = 1;
+        if (unlikely(__pyx_t_39 >= (size_t)__pyx_v_aryMdlRsp_view.shape[2])) __pyx_t_9 = 2;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 330, __pyx_L1_error)
+          __PYX_ERR(0, 349, __pyx_L1_error)
         }
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":329
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":348
  *                 idxVol = aryIdxTst_view[idxItr, idxXval]
  *                 # The predicted voxel time course value:
  *                 varXhat = (aryMdlRsp_view[idxVol, 0, idxMdl] * varSlope1 +             # <<<<<<<<<<<<<<
  *                            aryMdlRsp_view[idxVol, 1, idxMdl] * varSlope2)
  *                 # Mismatch between prediction and actual voxel value
  */
-        __pyx_v_varXhat = (((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_33 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_34 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_35 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope1) + ((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_36 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_37 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_38 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope2));
+        __pyx_v_varXhat = (((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_34 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_35 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_36 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope1) + ((*((float *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryMdlRsp_view.data + __pyx_t_37 * __pyx_v_aryMdlRsp_view.strides[0]) ) + __pyx_t_38 * __pyx_v_aryMdlRsp_view.strides[1]) ) + __pyx_t_39 * __pyx_v_aryMdlRsp_view.strides[2]) ))) * __pyx_v_varSlope2));
 
-        /* "hrf_opt/find_hrf_utils_cy_two.pyx":333
+        /* "hrf_opt/find_hrf_utils_cy_two.pyx":352
  *                 # Mismatch between prediction and actual voxel value
  *                 # (variance):
  *                 varRes += (vecFunc_view[idxVol] - varXhat) ** 2             # <<<<<<<<<<<<<<
  * 
  *             aryResXval_view[idxMdl, idxXval] = varRes
  */
-        __pyx_t_39 = __pyx_v_idxVol;
+        __pyx_t_40 = __pyx_v_idxVol;
         __pyx_t_9 = -1;
-        if (unlikely(__pyx_t_39 >= (size_t)__pyx_v_vecFunc_view.shape[0])) __pyx_t_9 = 0;
+        if (unlikely(__pyx_t_40 >= (size_t)__pyx_v_vecFunc_view.shape[0])) __pyx_t_9 = 0;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 333, __pyx_L1_error)
+          __PYX_ERR(0, 352, __pyx_L1_error)
         }
-        __pyx_v_varRes = (__pyx_v_varRes + powf(((*((float *) ( /* dim=0 */ (__pyx_v_vecFunc_view.data + __pyx_t_39 * __pyx_v_vecFunc_view.strides[0]) ))) - __pyx_v_varXhat), 2.0));
+        __pyx_v_varRes = (__pyx_v_varRes + powf(((*((float *) ( /* dim=0 */ (__pyx_v_vecFunc_view.data + __pyx_t_40 * __pyx_v_vecFunc_view.strides[0]) ))) - __pyx_v_varXhat), 2.0));
       }
 
-      /* "hrf_opt/find_hrf_utils_cy_two.pyx":335
+      /* "hrf_opt/find_hrf_utils_cy_two.pyx":354
  *                 varRes += (vecFunc_view[idxVol] - varXhat) ** 2
  * 
  *             aryResXval_view[idxMdl, idxXval] = varRes             # <<<<<<<<<<<<<<
  * 
  *     # Return memory view
  */
-      __pyx_t_40 = __pyx_v_idxMdl;
-      __pyx_t_41 = __pyx_v_idxXval;
+      __pyx_t_41 = __pyx_v_idxMdl;
+      __pyx_t_42 = __pyx_v_idxXval;
       __pyx_t_9 = -1;
-      if (unlikely(__pyx_t_40 >= (size_t)__pyx_v_aryResXval_view.shape[0])) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_41 >= (size_t)__pyx_v_aryResXval_view.shape[1])) __pyx_t_9 = 1;
+      if (unlikely(__pyx_t_41 >= (size_t)__pyx_v_aryResXval_view.shape[0])) __pyx_t_9 = 0;
+      if (unlikely(__pyx_t_42 >= (size_t)__pyx_v_aryResXval_view.shape[1])) __pyx_t_9 = 1;
       if (unlikely(__pyx_t_9 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_9);
-        __PYX_ERR(0, 335, __pyx_L1_error)
+        __PYX_ERR(0, 354, __pyx_L1_error)
       }
-      *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryResXval_view.data + __pyx_t_40 * __pyx_v_aryResXval_view.strides[0]) ) + __pyx_t_41 * __pyx_v_aryResXval_view.strides[1]) )) = __pyx_v_varRes;
+      *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_aryResXval_view.data + __pyx_t_41 * __pyx_v_aryResXval_view.strides[0]) ) + __pyx_t_42 * __pyx_v_aryResXval_view.strides[1]) )) = __pyx_v_varRes;
     }
   }
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":338
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":357
  * 
  *     # Return memory view
  *     return aryResXval_view             # <<<<<<<<<<<<<<
@@ -4740,7 +4848,7 @@ static __Pyx_memviewslice __pyx_f_7hrf_opt_21find_hrf_utils_cy_two_func_cy_res_x
   __pyx_r = __pyx_v_aryResXval_view;
   goto __pyx_L0;
 
-  /* "hrf_opt/find_hrf_utils_cy_two.pyx":266
+  /* "hrf_opt/find_hrf_utils_cy_two.pyx":277
  * # *** Function fast calculation residuals, with cross-validation, 1 predictor
  * 
  * cdef float[:, :] func_cy_res_xval(float[:, :, :] aryMdlRsp_view,             # <<<<<<<<<<<<<<
