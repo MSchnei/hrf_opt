@@ -34,7 +34,7 @@ from pyprf_feature.analysis.model_creation_utils import crt_nrl_tc
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 ###### DEBUGGING ###############
-#strCsvCnfg = "/home/marian/Documents/Testing/pyprf_feature_devel/control/S02_config_motDepPrf_flck_smooth_inw_hrf_opt.csv"
+#strCsvCnfg = "/media/sf_D_DRIVE/MotDepPrf/Analysis/S02/04_motDepPrf/pRF_results/Avg/S02_config_hrf_opt_flck_smooth_avg.csv"
 #lgcTest = False
 ################################
 
@@ -149,8 +149,9 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # Exclude hrf basis functions that have any NaN values
     lgcNan = np.any(np.isnan(aryHrfBse), axis=1)
     aryHrfBse = aryHrfBse[np.invert(lgcNan), :]
+    aryPrm = aryPrm[np.invert(lgcNan), :]
     if np.any(lgcNan):
-        print('------Nan values detected & ecluded in basis hrf functions')
+        print('------Nan values detected & excluded in basis hrf functions')
 
     # Load temporal information about when which apertures was presented in the
     # experiment
@@ -177,9 +178,10 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     queOut = mp.Queue()
 
     # Print statement to user
-    print('---Optimization will be performed on this number of voxels: ' +
+    print('---Optimize hrf functions')
+    print('------Optimization will be performed on this number of voxels: ' +
           str(aryFunc.shape[0]))
-    print('---Optimization will be performed on this number of models: ' +
+    print('------Optimization will be performed on this number of models: ' +
           str(aryPrm.shape[0]))
 
     # Create list with chunks of functional data for the parallel processes:
@@ -190,8 +192,6 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # We don't need the original array with the functional data anymore:
     del(aryFunc)
     del(aryNrlRsp)
-
-    print('------Optimize hrf functions')
 
     # Create processes:
     for idxPrc in range(0, cfg.varPar):
