@@ -226,7 +226,7 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
     # # R2 threshold that will be applied for voxel inclusion:
     dicCnfg['varThrR2'] = float(dicCnfg['varThrR2'])
     if lgcPrint:
-        print('---R2 threshold that will applied be for voxel inclusion: '
+        print('---R2 threshold that will be applied for voxel inclusion: '
               + str(dicCnfg['varThrR2']))
 
     # Number of processes to run in parallel:
