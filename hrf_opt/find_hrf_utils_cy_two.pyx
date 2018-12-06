@@ -338,7 +338,7 @@ cdef float[:, :] func_cy_res_xval(float[:, :, :] aryMdlRsp_view,
                              varDen)
                 varSlope2 = ((varVarX1 * varCovX2y - varVarX1X2 * varCovX1y) /
                              varDen)
-                
+
             # Loop through test volumes and calculate the predicted time course
             # value and the mismatch between prediction and actual voxel value
             for idxItr in range(varNumVolTst):
