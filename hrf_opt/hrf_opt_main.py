@@ -123,7 +123,9 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     aryMdlRsp = np.load(strMdlRspPath)
 
     # Obtain a mask for voxel inclusion by thresholding with R2 value
-    aryLgcR2 = np.greater(vecR2, cfg.varThrR2)
+    # Find R2 value for top varThrNumVox voxel
+    varThrR2 = vecR2[np.argsort(vecR2)[::-1][cfg.varThrNumVox]]
+    aryLgcR2 = np.greater(vecR2, varThrR2)
     # Apply the R2 mask to aryFunc and aryMdlRsp
     aryFunc = aryFunc[aryLgcR2, :]
     aryMdlRsp = aryMdlRsp[aryLgcR2, ...]
