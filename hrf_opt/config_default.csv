@@ -19,43 +19,43 @@
 # Set the hrf function specific parameters
 
 # Minimum delay for the peak of the hrf function:
-varPkDelMin = 2.0
+varPkDelMin = 4.0
 
 # Maximum delay for the peak of the hrf function:
-varPkDelMax = 10.0
+varPkDelMax = 8.0
 
 # Minimum delay for the undershoot of the hrf function:
-varUndDelMin = 8.0
+varUndDelMin = 12.0
 
 # Maximum delay for the undershoot of the hrf function:
 varUndDelMax = 20.0
 
 # Step size for peak and undershoot delay of the hrf function:
-varDelStp = 1.0
+varDelStp = 0.5
 
 # Minimum dispersion for the peak of the hrf function:
 varPkDspMin = 0.1
 
 # Maximum dispersion for the peak of the hrf function:
-varPkDspMax = 2.5
+varPkDspMax = 2.2
 
 # Minimum dispersion for the undershoot of the hrf function:
 varUndDspMin = 0.1
 
 # Maximum dispersion for the undershoot of the hrf function:
-varUndDspMax = 3.5
+varUndDspMax = 2.2
 
 # Step size for peak and undershoot dispersion of the hrf function:
-varDspStp = 0.2
+varDspStp = 0.3
 
 # Minimum peak to undershoot ratio:
-varPkUndRatMin = 1.1
+varPkUndRatMin = 1.5
 
 # Maximum peak to undershoot ratio:
-varPkUndRatMax = 2.0
+varPkUndRatMax = 10.5
 
 # Step size for the peak to undershoot ratio
-varPkUndRatStp = 0.1
+varPkUndRatStp = 1.0
 
 # Factor by which time courses and HRF will be upsampled for the convolutions
 # Higher number might yield more accurate reults but also takes up more RAM.
@@ -94,8 +94,8 @@ strPathFitRes = '~/pRF_results/pRF_results'
 
 # Set fitting details
 
-# R2 threshold that will be applied for voxel inclusion:
-varThrR2 = 0.2
+# Top number of voxels that will be considered for hrf pool:
+varThrNumVox = 100
 
 # Number of processes to run in parallel:
 varPar = 10

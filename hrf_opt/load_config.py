@@ -223,11 +223,11 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         print('---Path to base of files with previous pRF fitting results: ')
         print('   ' + str(dicCnfg['strPathFitRes']))
 
-    # # R2 threshold that will be applied for voxel inclusion:
-    dicCnfg['varThrR2'] = float(dicCnfg['varThrR2'])
+    # Top number of voxels that will be considered for hrf pool:
+    dicCnfg['varThrNumVox'] = float(dicCnfg['varThrNumVox'])
     if lgcPrint:
-        print('---R2 threshold that will applied be for voxel inclusion: '
-              + str(dicCnfg['varThrR2']))
+        print('---Top number of voxels that will be considered for hrf pool: '
+              + str(dicCnfg['varThrNumVox']))
 
     # Number of processes to run in parallel:
     dicCnfg['varPar'] = int(dicCnfg['varPar'])

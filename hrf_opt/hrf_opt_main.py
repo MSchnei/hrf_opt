@@ -34,7 +34,7 @@ from pyprf_feature.analysis.model_creation_utils import crt_nrl_tc
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 ###### DEBUGGING ###############
-#strCsvCnfg = "/media/sf_D_DRIVE/MotionQuartet/Analysis/P3/Prf/Fitting/pRF_results/P3_hrf_opt.csv"
+#strCsvCnfg = "/media/sf_D_DRIVE/MotDepPrf/Analysis/S02/04_motDepPrf/pRF_results/Avg/S02_config_hrf_opt_flck_smooth_avg.csv"
 #lgcTest = False
 ################################
 
@@ -69,6 +69,7 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # that fitting
     if cfg.lgcSupsur:
         cfg.strPathOut = cfg.strPathOut + '_supsur'
+        cfg.strPathFitRes = cfg.strPathFitRes + '_supsur'
 
     # Convert preprocessing parameters (for temporal smoothing)
     # from SI units (i.e. [s]) into units of data array (volumes):
@@ -120,11 +121,11 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     assert os.path.isfile(strMdlRspPath), errorMsg
     # Load response to apertures for each voxel for winner model from first fit
     aryMdlRsp = np.load(strMdlRspPath)
-    # Apply inclusion mask to aryMdlRsp
-    aryMdlRsp = aryMdlRsp[aryLgcVar, ...]
 
     # Obtain a mask for voxel inclusion by thresholding with R2 value
-    aryLgcR2 = np.greater(vecR2, cfg.varThrR2)
+    # Find R2 value for top varThrNumVox voxel
+    varThrR2 = vecR2[np.argsort(vecR2)[::-1][cfg.varThrNumVox]]
+    aryLgcR2 = np.greater(vecR2, varThrR2)
     # Apply the R2 mask to aryFunc and aryMdlRsp
     aryFunc = aryFunc[aryLgcR2, :]
     aryMdlRsp = aryMdlRsp[aryLgcR2, ...]
@@ -150,8 +151,9 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # Exclude hrf basis functions that have any NaN values
     lgcNan = np.any(np.isnan(aryHrfBse), axis=1)
     aryHrfBse = aryHrfBse[np.invert(lgcNan), :]
+    aryPrm = aryPrm[np.invert(lgcNan), :]
     if np.any(lgcNan):
-        print('------Nan values detected & ecluded in basis hrf functions')
+        print('------Nan values detected & excluded in basis hrf functions')
 
     # Load temporal information about when which apertures was presented in the
     # experiment
@@ -178,9 +180,10 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     queOut = mp.Queue()
 
     # Print statement to user
-    print('---Optimization will be performed on this number of voxels: ' +
+    print('---Optimize hrf functions')
+    print('------Optimization will be performed on this number of voxels: ' +
           str(aryFunc.shape[0]))
-    print('---Optimization will be performed on this number of models: ' +
+    print('------Optimization will be performed on this number of models: ' +
           str(aryPrm.shape[0]))
 
     # Create list with chunks of functional data for the parallel processes:
@@ -191,8 +194,6 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # We don't need the original array with the functional data anymore:
     del(aryFunc)
     del(aryNrlRsp)
-
-    print('------Optimize hrf functions')
 
     # Create processes:
     for idxPrc in range(0, cfg.varPar):
