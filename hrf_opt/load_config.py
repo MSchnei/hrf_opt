@@ -224,7 +224,7 @@ def load_config(strCsvCnfg, lgcTest=False, lgcPrint=True):
         print('   ' + str(dicCnfg['strPathFitRes']))
 
     # Top number of voxels that will be considered for hrf pool:
-    dicCnfg['varThrNumVox'] = float(dicCnfg['varThrNumVox'])
+    dicCnfg['varThrNumVox'] = int(dicCnfg['varThrNumVox'])
     if lgcPrint:
         print('---Top number of voxels that will be considered for hrf pool: '
               + str(dicCnfg['varThrNumVox']))
