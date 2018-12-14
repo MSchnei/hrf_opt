@@ -94,8 +94,11 @@ strPathFitRes = '~/pRF_results/pRF_results'
 
 # Set fitting details
 
-# Top number of voxels that will be considered for hrf pool:
-varThrNumVox = 100
+Minimum R2 value for voxel to be considered:
+varThrR2 = 0.3
+
+Max number of voxels to be considered (if many voxels pass R2 threshold):
+varMaxNumVox = 500
 
 # Number of processes to run in parallel:
 varPar = 10
