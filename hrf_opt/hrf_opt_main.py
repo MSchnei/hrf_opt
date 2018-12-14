@@ -34,7 +34,7 @@ from pyprf_feature.analysis.model_creation_utils import crt_nrl_tc
 from pyprf_feature.analysis.utils_hrf import spm_hrf_compat
 
 ###### DEBUGGING ###############
-#strCsvCnfg = "/media/sf_D_DRIVE/MotDepPrf/Analysis/S02/04_motDepPrf/pRF_results/Avg/S02_config_hrf_opt_flck_smooth_avg.csv"
+#strCsvCnfg = "/media/sf_D_DRIVE/MotDepPrf/Analysis/S06/03_motLoc/pRF_results/Supsur/hrf_opt/S06_config_hrf_opt_V1.csv"
 #lgcTest = False
 ################################
 
@@ -92,6 +92,9 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # Get inclusion mask and nii header
     aryLgcMsk, aryLgcVar, hdrMsk, aryAff, aryFunc, tplNiiShp = prep_func(
         cfg.strPathNiiMask, cfg.lstPathNiiFunc, varAvgThr=-100)
+    # set the precision of the header to np.float32 so that the hrf results
+    # will be saved in this precision later
+    hdrMsk.set_data_dtype(np.float32)
 
     # Derive path to R2 results from first fit
     lstR2Path = [cfg.strPathFitRes + '_R2.nii.gz']
@@ -122,10 +125,35 @@ def hrf_opt_run(strCsvCnfg, lgcTest=False):
     # Load response to apertures for each voxel for winner model from first fit
     aryMdlRsp = np.load(strMdlRspPath)
 
-    # Obtain a mask for voxel inclusion by thresholding with R2 value
-    # Find R2 value for top varThrNumVox voxel
-    varThrR2 = vecR2[np.argsort(vecR2)[::-1][cfg.varThrNumVox]]
-    aryLgcR2 = np.greater(vecR2, varThrR2)
+    # Load mask as well so we know which voxels these responses belonged to
+    # The mask used here might be a subset of the mask used for prf fitting.
+    aryPrvMsk = np.load(cfg.strPathFitRes + '_FitMdlRsp_Mask.npy')
+    # Check that all the voxels that are in the current mask were also already
+    # in the previous mask (i.e. that current mask is subset of previous mask)
+    aryCrrMsk = np.copy(aryLgcMsk)
+    aryCrrMsk[aryCrrMsk] = aryLgcVar
+    # Make sure that mask used here is a subset of mask used during pRF
+    errorMsg = ('The mask supplied for hrf opt must be identical to the one' +
+                'supplied initially for prf fitting / or a subset of the' +
+                'initial fit. None of the two conditions is fullfilled here.')
+    assert np.all(aryPrvMsk[aryCrrMsk]), errorMsg
+    # Create a logical to convert from previous (prf fitting) to current mask
+    indPrvMsk = np.where(aryPrvMsk)[0]
+    indCrrMsk = np.where(aryCrrMsk)[0]
+    aryLgcCnv = np.in1d(indPrvMsk, indCrrMsk)
+    # Apply conversion from previous to current mask to model responses
+    aryMdlRsp = aryMdlRsp[aryLgcCnv, :, :]
+
+    # Identify top voxels in terms of R2, number of top voxel is determined by
+    # varMaxNumVox (set in csv file)
+    indTopVxlR2 = np.argsort(vecR2)[::-1]
+    lgcTopVxlR2 = np.zeros(vecR2.size, dtype=np.bool)
+    lgcTopVxlR2[indTopVxlR2[:cfg.varMaxNumVox]] = True
+    # Find R2 values that pass the R2 treshold
+    lgcR2Trsh = np.greater(vecR2, cfg.varThrR2)
+    # Combine voxels that are in top with R2 threshold logical
+    aryLgcR2 = np.logical_and(lgcTopVxlR2, lgcR2Trsh)
+
     # Apply the R2 mask to aryFunc and aryMdlRsp
     aryFunc = aryFunc[aryLgcR2, :]
     aryMdlRsp = aryMdlRsp[aryLgcR2, ...]
