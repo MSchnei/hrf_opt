@@ -69,8 +69,9 @@ def crt_hrf_prm(varPkDelMin, varPkDelMax, varUndDelMin, varUndDelMax,
 
     # Define vector for weighting of undershoot relative to peak,
     # e.g. 6 means 1:6 weighting
-    vecPkUndRat = np.arange(varPkUndRatMin, varPkUndRatMax+varPkUndRatStp,
-                            varPkUndRatStp)
+    vecPkUndRat = np.divide(10, np.arange(varPkUndRatMin,
+                                          varPkUndRatMax+varPkUndRatStp,
+                                          varPkUndRatStp))
 
     # Find combinations of all parameters
     # Exclude combinations where undershoot delay less than peak delay
