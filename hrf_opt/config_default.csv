@@ -48,11 +48,13 @@ varUndDspMax = 2.2
 # Step size for peak and undershoot dispersion of the hrf function:
 varDspStp = 0.3
 
-# Minimum peak to undershoot ratio:
-varPkUndRatMin = 1.5
+# Minimum peak to undershoot ratio (will be scaled by 1/10):
+# 1 means that undershoot is 1/10 of overshoot
+varPkUndRatMin = 1.0
 
-# Maximum peak to undershoot ratio:
-varPkUndRatMax = 10.5
+# Maximum peak to undershoot ratio (will be scaled by 1/10):
+# 10 means that undershoot is equal to overshoot
+varPkUndRatMax = 10.0
 
 # Step size for the peak to undershoot ratio
 varPkUndRatStp = 1.0
